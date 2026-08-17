@@ -257,10 +257,10 @@ o banco de dados real, via linha de comando do Apache Hop.
 \chapter*{Resumo executivo}
 \addcontentsline{toc}{chapter}{Resumo executivo}
 
-O AeroTrack e uma solução de integração de dados construída com Apache Hop
+O AeroTrack é uma solução de integração de dados construída com Apache Hop
 para o Projeto 4 sugerido no trabalho final do Módulo 6: monitoramento de
 qualidade do ar. O dataset público Air Quality (UCI Machine Learning
-Repository) e lido, tratado, classificado e persistido em um banco de dados
+Repository) é lido, tratado, classificado e persistido em um banco de dados
 PostgreSQL, com indicadores consolidados e apresentados em um dashboard.
 
 \begin{resumobox}[Resultado técnico atual]
@@ -270,9 +270,9 @@ PostgreSQL, com indicadores consolidados e apresentados em um dashboard.
     \item 9357 leituras horárias processadas: 8131 gravadas como válidas e
       1226 separadas por não terem nenhum poluente de referência.
     \item Banco de dados PostgreSQL com quatro tabelas e duas visões,
-      reexecutavel sem duplicidade por chave única e Insert/Update.
+      reexecutável sem duplicidade por chave única e Insert/Update.
     \item Indicadores diários (363 dias) e mensais (14 meses) consolidados.
-    \item Dashboard estatico com sete indicadores, quatro gráficos e o ranking
+    \item Dashboard estático com sete indicadores, quatro gráficos e o ranking
       dos dez piores dias.
   \end{itemize}
 \end{resumobox}
@@ -321,7 +321,7 @@ responde diretamente a essa pergunta.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\textwidth]{../assets/aerotrack-flowchart.png}
+  \includegraphics[width=\textwidth]{../assets/aerotrack-flowchart-pt.png}
   \caption{Fluxo de ponta a ponta do AeroTrack: do dataset público ao dashboard.}
 \end{figure}
 
@@ -343,6 +343,7 @@ após o sucesso da ingestão.
 
 \section{pl\_01\_ingestion\_treatment}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.2\textwidth} p{0.24\textwidth} p{0.46\textwidth}}
 \toprule
 Etapa & Transformação & O que faz \\
@@ -365,11 +366,13 @@ Banco de dados & Insert/Update & Grava as leituras válidas em \texttt{leituras\
 Banco de dados & Table Output & Grava as leituras rejeitadas em \texttt{leituras\_rejeitadas} \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \evidencia{E04-pipeline-ingestion-canvas.png}{Canvas de pl\_01\_ingestion\_treatment no Hop Designer}{pendente de captura pela equipe}
 
 \section{pl\_02\_indicator\_consolidation}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.24\textwidth} p{0.2\textwidth} p{0.46\textwidth}}
 \toprule
 Etapa & Transformação & O que faz \\
@@ -381,6 +384,7 @@ Consolidação mensal & Table Input & Agrega \texttt{leituras\_qualidade\_ar} po
 Banco de dados & Insert/Update & Grava o resumo em \texttt{resumo\_mensal\_qualidade\_ar} \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \evidencia{E05-pipeline-consolidation-canvas.png}{Canvas de pl\_02\_indicator\_consolidation no Hop Designer}{pendente de captura pela equipe}
 
@@ -426,6 +430,7 @@ alto de cada poluente). Não ha referência a uma norma regulatória externa.
 
 \section{Estrutura de tabelas}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.32\textwidth} p{0.58\textwidth}}
 \toprule
 Tabela / visão & Finalidade \\
@@ -439,6 +444,7 @@ Tabela / visão & Finalidade \\
 \texttt{vw\_ranking\_piores\_dias} & Os 10 dias de piores condições \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 O detalhamento completo das colunas está em \texttt{docs/pt/contrato-banco.md}
 no repositório.
@@ -506,6 +512,7 @@ O log completo está em \texttt{docs/evidencias/logs/execução-workflow-complet
 
 \section{Indicadores gerais obtidos}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.5\textwidth} p{0.4\textwidth}}
 \toprule
 Indicador & Valor \\
@@ -522,6 +529,7 @@ Dias consolidados & 363 \\
 Meses consolidados & 14 \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \section{Conferência de contagens}
 
@@ -538,7 +546,7 @@ o que é coerente com o comportamento esperado de poluentes urbanos.
 O AeroTrack demonstra o ciclo completo de ETL do trabalho final: leitura de
 um dataset público, tratamento real dentro do Apache Hop (nulos, linhas
 inválidas, conversão de tipos, classificação), persistência em banco
-relacional reexecutavel sem duplicidade, orquestração por workflow e
+relacional reexecutável sem duplicidade, orquestração por workflow e
 indicadores apresentados em um dashboard.
 
 \section{Principais decisões técnicas}
@@ -571,6 +579,7 @@ limpa. O mesmo conteúdo, sempre atualizado, está em
 
 \section{Pré-requisitos}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.28\textwidth} p{0.16\textwidth} p{0.44\textwidth}}
 \toprule
 Ferramenta & Versão mínima & Uso \\
@@ -583,6 +592,7 @@ Apache Hop & 2.18 & Executar as pipelines e o workflow \\
 Python & 3.10 & Exportar os indicadores para o dashboard \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \section{Passo a passo}
 
@@ -620,6 +630,7 @@ necessário, executa o workflow e exporta o dashboard.
 
 \section{Solução de problemas}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.34\textwidth} p{0.42\textwidth}}
 \toprule
 Sintoma & Solução \\
@@ -631,9 +642,11 @@ Porta 5434 ocupada & Ajuste a porta em \texttt{database/docker-compose.yml} e no
 Dashboard em branco no navegador & Sirva a pasta com \texttt{python3 -m http.server}, não abra o arquivo diretamente \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \chapter{Equipe}
 
+\small
 \begin{longtable}{>{\bfseries}p{0.32\textwidth} p{0.22\textwidth} p{0.36\textwidth}}
 \toprule
 Integrante & GitHub & Frente \\
@@ -645,5 +658,6 @@ Fernanda de Oliveira da Costa & \href{https://github.com/nanda-costa}{@nanda-cos
 Pedro Henrique Oliveira Dias & \href{https://github.com/pedroddias-oss}{@pedroddias-oss} & Testes de reexecução, evidências e apresentação \\
 \bottomrule
 \end{longtable}
+\normalsize
 
 \end{document}
