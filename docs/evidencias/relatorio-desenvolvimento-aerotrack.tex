@@ -1,0 +1,586 @@
+\documentclass[12pt,a4paper,openany]{report}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{geometry}
+\usepackage[table]{xcolor}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{hyperref}
+\usepackage{url}
+
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,backgrounds}
+
+\geometry{
+  top=2.8cm,
+  bottom=2.5cm,
+  left=2.5cm,
+  right=2.2cm,
+  headheight=38pt,
+  headsep=0.55cm,
+  footskip=1.25cm
+}
+
+\definecolor{AeroNavy}{HTML}{0B1F33}
+\definecolor{AeroBlue}{HTML}{2A78D6}
+\definecolor{AeroGreen}{HTML}{1BAF7A}
+\definecolor{AeroLight}{HTML}{F2F7FB}
+\definecolor{AeroLine}{HTML}{C9D8E8}
+\definecolor{AeroText}{HTML}{26364A}
+\definecolor{AeroWarning}{HTML}{E5A000}
+\definecolor{AeroCritical}{HTML}{D03B3B}
+\definecolor{CodeBackground}{HTML}{F6F8FA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AeroNavy,
+  urlcolor=AeroBlue,
+  citecolor=AeroGreen,
+  pdftitle={Relatorio de Desenvolvimento do AeroTrack},
+  pdfauthor={Equipe AeroTrack},
+  pdfsubject={Trabalho Final do Modulo 6 de Apache Hop},
+  pdfkeywords={AeroTrack, Apache Hop, ETL, qualidade do ar, PostgreSQL}
+}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.65em}
+\renewcommand{\arraystretch}{1.25}
+\setlist[itemize]{leftmargin=1.4em,itemsep=0.25em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=1.6em,itemsep=0.3em,topsep=0.3em}
+
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries\color{AeroNavy}}
+  {\filleft\color{AeroBlue}\fontsize{42}{42}\selectfont\thechapter}
+  {-1.5ex}
+  {\titlerule[1.2pt]\vspace{1.2ex}\Huge}
+  [\vspace{0.8ex}\titlerule]
+
+\titleformat{\section}
+  {\Large\bfseries\color{AeroNavy}}
+  {\thesection}{0.7em}{}
+
+\titleformat{\subsection}
+  {\large\bfseries\color{AeroGreen}}
+  {\thesubsection}{0.7em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\includegraphics[height=1cm]{../assets/aerotrack-icon.png}}
+\fancyhead[C]{\small\color{AeroNavy}\textbf{Relatorio de Desenvolvimento}}
+\fancyhead[R]{\small\color{AeroGreen}\textbf{AeroTrack}}
+\fancyfoot[L]{\scriptsize\color{AeroText}Modulo 6 | Apache Hop}
+\fancyfoot[C]{\scriptsize\color{AeroText}Pagina \thepage\ de \pageref{LastPage}}
+\fancyfoot[R]{\scriptsize\color{AeroText}AeroTrack | Versao 1.0}
+\renewcommand{\headrulewidth}{0.6pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{AeroLine}\leaders\hrule height \headrulewidth\hfill}}
+\renewcommand{\footrule}{\hbox to\headwidth{\color{AeroLine}\leaders\hrule height \footrulewidth\hfill}}
+
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyhead[L]{\includegraphics[height=1cm]{../assets/aerotrack-icon.png}}
+  \fancyhead[C]{\small\color{AeroNavy}\textbf{Relatorio de Desenvolvimento}}
+  \fancyhead[R]{\small\color{AeroGreen}\textbf{AeroTrack}}
+  \fancyfoot[L]{\scriptsize\color{AeroText}Modulo 6 | Apache Hop}
+  \fancyfoot[C]{\scriptsize\color{AeroText}Pagina \thepage\ de \pageref{LastPage}}
+  \fancyfoot[R]{\scriptsize\color{AeroText}AeroTrack | Versao 1.0}
+  \renewcommand{\headrulewidth}{0.6pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+
+\newtcolorbox{resumobox}[1][]{
+  enhanced,
+  breakable,
+  colback=AeroLight,
+  colframe=AeroBlue,
+  boxrule=0.8pt,
+  arc=2mm,
+  left=4mm,
+  right=4mm,
+  top=3mm,
+  bottom=3mm,
+  title=#1,
+  fonttitle=\bfseries,
+  coltitle=AeroNavy
+}
+
+\newtcolorbox{statusbox}[1][]{
+  enhanced,
+  breakable,
+  colback=white,
+  colframe=AeroGreen,
+  boxrule=0.7pt,
+  borderline west={3pt}{0pt}{AeroGreen},
+  arc=1mm,
+  left=4mm,
+  right=4mm,
+  top=3mm,
+  bottom=3mm,
+  title=#1,
+  fonttitle=\bfseries,
+  coltitle=AeroNavy
+}
+
+\lstdefinestyle{aero}{
+  backgroundcolor=\color{CodeBackground},
+  basicstyle=\ttfamily\scriptsize\color{AeroText},
+  keywordstyle=\bfseries\color{AeroGreen},
+  commentstyle=\itshape\color{AeroGreen},
+  stringstyle=\color{AeroBlue},
+  frame=single,
+  rulecolor=\color{AeroLine},
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  xleftmargin=0.5em,
+  xrightmargin=0.5em,
+  aboveskip=0.8em,
+  belowskip=0.8em
+}
+\lstset{style=aero}
+
+\newcommand{\statusok}{\textcolor{AeroGreen}{\textbf{Aprovado}}}
+
+\newcommand{\evidencia}[3]{
+  \begin{figure}[H]
+    \centering
+    \IfFileExists{capturas/#1}{
+      \includegraphics[width=0.94\textwidth,height=0.52\textheight,keepaspectratio]{capturas/#1}
+    }{
+      \fcolorbox{AeroLine}{AeroLight}{
+        \parbox[c][5.4cm][c]{0.88\textwidth}{
+          \centering
+          {\Large\bfseries\color{AeroNavy}Evidencia nao encontrada nesta compilacao}\par
+          \vspace{0.8em}
+          {\color{AeroGreen}\texttt{\detokenize{#1}}}\par
+          \vspace{0.8em}
+          {\small\color{AeroText}Adicione a imagem em \texttt{docs/evidencias/capturas/} conforme o catalogo.}
+        }
+      }
+    }
+    \caption{#2. Situacao atual: #3.}
+  \end{figure}
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[AeroNavy] (current page.north west) rectangle ([yshift=-5.4cm]current page.north east);
+    \fill[AeroBlue] ([yshift=-5.4cm]current page.north west) rectangle ([yshift=-5.58cm]current page.north east);
+    \fill[AeroGreen] ([xshift=-2.1cm]current page.south east) rectangle (current page.south east);
+    \draw[AeroBlue,line width=2.5pt] ([xshift=1.2cm,yshift=1.4cm]current page.south west) -- ([xshift=-2.7cm,yshift=1.4cm]current page.south east);
+  \end{tikzpicture}
+
+  \vspace*{0.7cm}
+  \begin{center}
+    \includegraphics[width=0.62\textwidth]{../assets/aerotrack-logo.png}
+
+    \vspace{2.2cm}
+    {\fontsize{28}{34}\selectfont\bfseries\color{AeroNavy}RELATORIO DE DESENVOLVIMENTO\par}
+    \vspace{0.35cm}
+    {\Large\color{AeroGreen}Monitoramento de Qualidade do Ar com Apache Hop\par}
+    \vspace{0.6cm}
+    {\large\color{AeroText}Trabalho Final | Modulo 6 | Apache Hop\par}
+
+    \vspace{1.6cm}
+    \begin{tcolorbox}[
+      width=0.88\textwidth,
+      colback=AeroLight,
+      colframe=AeroLine,
+      boxrule=0.7pt,
+      arc=2mm,
+      left=5mm,
+      right=5mm,
+      top=4mm,
+      bottom=4mm
+    ]
+      \centering
+      \textbf{Equipe AeroTrack}\par
+      \vspace{0.45cm}
+      \begin{tabular}{>{\bfseries}l l}
+        Allef Oliveira Ramos & \href{https://github.com/allef-oliveira}{@allef-oliveira} \\
+        Fernanda de Oliveira da Costa & \href{https://github.com/nanda-costa}{@nanda-costa} \\
+        Juliana Ballin Lima & \href{https://github.com/JulianaBallin}{@JulianaBallin} \\
+        Pedro Henrique Oliveira Dias & \href{https://github.com/pedroddias-oss}{@pedroddias-oss} \\
+      \end{tabular}
+    \end{tcolorbox}
+
+    \vfill
+    {\color{AeroText}Manaus | 2026\par}
+    \vspace{0.2cm}
+    {\small\color{AeroText}Capacitacao em IA e Transformacao Digital\par}
+  \end{center}
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{Identificacao do documento}
+\addcontentsline{toc}{chapter}{Identificacao do documento}
+
+\begin{tabularx}{\textwidth}{>{\bfseries\color{AeroNavy}}p{0.36\textwidth} X}
+  Projeto & AeroTrack \\
+  Documento & Relatorio de Desenvolvimento \\
+  Curso & Capacitacao em IA e Transformacao Digital \\
+  Modulo & Modulo 6 de Apache Hop \\
+  Projeto sugerido & Projeto 4, Monitoramento de Qualidade do Ar \\
+  Repositorio & \url{https://github.com/JulianaBallin/AeroTrack} \\
+  Branch de desenvolvimento & \texttt{develop} \\
+  Versao & 1.0 \\
+  Situacao & Pipelines, workflow, banco de dados e dashboard validados de ponta a ponta \\
+\end{tabularx}
+
+\begin{resumobox}[Controle de revisao]
+Este documento registra o problema, a arquitetura, as pipelines, o tratamento
+de dados, o banco de dados, os indicadores, o dashboard e a validacao dos
+resultados do AeroTrack. Todas as execucoes descritas foram realizadas contra
+o banco de dados real, via linha de comando do Apache Hop.
+\end{resumobox}
+
+\chapter*{Resumo executivo}
+\addcontentsline{toc}{chapter}{Resumo executivo}
+
+O AeroTrack e uma solucao de integracao de dados construida com Apache Hop
+para o Projeto 4 sugerido no trabalho final do Modulo 6: monitoramento de
+qualidade do ar. O dataset publico Air Quality (UCI Machine Learning
+Repository) e lido, tratado, classificado e persistido em um banco de dados
+PostgreSQL, com indicadores consolidados e apresentados em um dashboard.
+
+\begin{resumobox}[Resultado tecnico atual]
+  \begin{itemize}
+    \item Duas pipelines Apache Hop (ingestao/tratamento e consolidacao) e um
+      workflow de orquestracao, executados de ponta a ponta sem erros.
+    \item 9357 leituras horarias processadas: 8131 gravadas como validas e
+      1226 separadas por nao terem nenhum poluente de referencia.
+    \item Banco de dados PostgreSQL com quatro tabelas e duas visoes,
+      reexecutavel sem duplicidade por chave unica e Insert/Update.
+    \item Indicadores diarios (363 dias) e mensais (14 meses) consolidados.
+    \item Dashboard estatico com sete indicadores, quatro graficos e o ranking
+      dos dez piores dias.
+  \end{itemize}
+\end{resumobox}
+
+\tableofcontents
+\clearpage
+
+\pagenumbering{arabic}
+
+\chapter{Contexto, objetivo e problema}
+
+\section{Contexto academico}
+
+O trabalho final do Modulo 6 pede uma solucao pratica de ETL com Apache Hop,
+partindo de um dataset publico, com tratamento de dados dentro da pipeline,
+persistencia em banco relacional, orquestracao por workflow, indicadores e um
+dashboard.
+
+\section{Objetivo geral}
+
+Demonstrar, de forma pratica, o uso do Apache Hop para transformar dados
+brutos de qualidade do ar em informacao estruturada, apoiando a analise de
+periodos com piores condicoes ambientais.
+
+\section{Dataset utilizado}
+
+\begin{tabularx}{\textwidth}{>{\bfseries\color{AeroNavy}}p{0.28\textwidth} X}
+  Dataset & Air Quality \\
+  Fonte & UCI Machine Learning Repository, \url{https://archive.ics.uci.edu/dataset/360/air+quality} \\
+  Origem dos dados & Estacao de monitoramento em uma cidade italiana (De Vito et al.) \\
+  Periodo & Marco de 2004 a fevereiro de 2005 \\
+  Volume & 9357 leituras horarias, 15 variaveis \\
+\end{tabularx}
+
+\section{Problema principal}
+
+Em quais periodos ocorreram as piores condicoes de qualidade do ar
+registradas, e quais variaveis ambientais (temperatura e umidade) estavam
+associadas a esses periodos? O ranking dos dez dias com maior media de CO,
+cruzado com a media de NO2 e o percentual de horas em condicao critica,
+responde diretamente a essa pergunta.
+
+\chapter{Arquitetura da solucao}
+
+\section{Visao geral}
+
+\begin{lstlisting}
+Fonte de dados (CSV publico, UCI Air Quality)
+  |
+Pipeline de ingestao e tratamento (pl_01_ingestao_tratamento.hpl)
+  |
+Regras de classificacao (nivel de CO, nivel de NO2, turno do dia)
+  |
+Banco de dados PostgreSQL (leituras_qualidade_ar, leituras_rejeitadas)
+  |
+Pipeline de consolidacao (pl_02_consolidacao_indicadores.hpl)
+  |
+Indicadores (resumo_diario_qualidade_ar, resumo_mensal_qualidade_ar)
+  |
+Dashboard (dashboard/index.html)
+\end{lstlisting}
+
+As duas pipelines sao orquestradas pelo workflow
+\texttt{wf\_orquestracao\_qualidade\_ar.hwf}: a consolidacao so e executada
+apos o sucesso da ingestao.
+
+\section{Tecnologias utilizadas}
+
+\begin{itemize}
+  \item \textbf{Apache Hop 2.18}: pipelines, workflow e metadados de conexao.
+  \item \textbf{PostgreSQL 16}: banco de dados relacional, em container Docker.
+  \item \textbf{Docker Compose}: subida do banco de dados local.
+  \item \textbf{Chart.js}, vendorizado localmente: graficos do dashboard.
+  \item \textbf{Python 3 e psql}: exportacao dos indicadores para o dashboard.
+\end{itemize}
+
+\chapter{Pipelines Apache Hop}
+
+\section{pl\_01\_ingestao\_tratamento}
+
+\begin{longtable}{>{\bfseries}p{0.2\textwidth} p{0.24\textwidth} p{0.46\textwidth}}
+\toprule
+Etapa & Transformacao & O que faz \\
+\midrule
+\endhead
+Ingestao & CSV Input & Le \texttt{data/raw/AirQualityUCI.csv} (separador \texttt{;}, decimal \texttt{,}) \\
+Qualidade & Filter Rows & Remove as linhas vazias do final do export do dataset \\
+Tratamento & Formula & Combina data e hora originais em um texto unico \\
+Tratamento & Null If & Converte o sentinela \texttt{-200} em nulo, em 13 campos numericos \\
+Tratamento & Select Values & Renomeia os campos tratados e remove os campos auxiliares \\
+Tratamento & Select Values & Converte o texto de data e hora para o tipo Data \\
+Enriquecimento & Calculator & Deriva ano, mes, dia, hora, dia da semana e a data de referencia \\
+Enriquecimento & Value Mapper & Converte o numero do dia da semana no nome por extenso \\
+Enriquecimento & Number Range & Classifica a hora em turno do dia \\
+Enriquecimento & Number Range & Classifica o nivel de CO \\
+Enriquecimento & Number Range & Classifica o nivel de NO2 \\
+Regra de negocio & Janino & Calcula se a leitura e valida e se a condicao e critica \\
+Qualidade & Filter Rows & Separa leituras validas das leituras sem poluente de referencia \\
+Banco de dados & Insert/Update & Grava as leituras validas em \texttt{leituras\_qualidade\_ar} \\
+Banco de dados & Table Output & Grava as leituras rejeitadas em \texttt{leituras\_rejeitadas} \\
+\bottomrule
+\end{longtable}
+
+\evidencia{E04-pipeline-ingestao-canvas.png}{Canvas de pl\_01\_ingestao\_tratamento no Hop Designer}{pendente de captura pela equipe}
+
+\section{pl\_02\_consolidacao\_indicadores}
+
+\begin{longtable}{>{\bfseries}p{0.24\textwidth} p{0.2\textwidth} p{0.46\textwidth}}
+\toprule
+Etapa & Transformacao & O que faz \\
+\midrule
+\endhead
+Consolidacao diaria & Table Input & Agrega \texttt{leituras\_qualidade\_ar} por data \\
+Banco de dados & Insert/Update & Grava o resumo em \texttt{resumo\_diario\_qualidade\_ar} \\
+Consolidacao mensal & Table Input & Agrega \texttt{leituras\_qualidade\_ar} por ano e mes \\
+Banco de dados & Insert/Update & Grava o resumo em \texttt{resumo\_mensal\_qualidade\_ar} \\
+\bottomrule
+\end{longtable}
+
+\evidencia{E05-pipeline-consolidacao-canvas.png}{Canvas de pl\_02\_consolidacao\_indicadores no Hop Designer}{pendente de captura pela equipe}
+
+\section{Workflow de orquestracao}
+
+\begin{lstlisting}
+START -> Ingestao e tratamento -> Consolidacao de indicadores -> Processo concluido
+\end{lstlisting}
+
+O segundo hop so e seguido se a pipeline de ingestao terminar com sucesso.
+
+\evidencia{E06-workflow-canvas.png}{Canvas de wf\_orquestracao\_qualidade\_ar no Hop Designer}{pendente de captura pela equipe}
+
+\chapter{Tratamento de dados}
+
+\section{Valor sentinela -200}
+
+O dataset original usa \texttt{-200} para indicar ausencia de leitura em
+qualquer sensor. O passo Null If converte esse valor em nulo antes de
+qualquer calculo, evitando que ele distorca medias e indicadores.
+
+\section{Linhas vazias do export}
+
+O arquivo termina com 114 linhas totalmente vazias, um artefato do processo
+de exportacao do dataset. Essas linhas sao descartadas logo apos a leitura do
+CSV, antes de qualquer outro tratamento.
+
+\section{Separacao de leituras invalidas}
+
+Uma leitura e considerada invalida quando os tres poluentes de referencia
+(CO, NOx e NO2) estao todos ausentes. Essas leituras sao gravadas em
+\texttt{leituras\_rejeitadas}, com o motivo da rejeicao, em vez de entrarem no
+calculo dos indicadores.
+
+\section{Classificacao analitica}
+
+As faixas de BOM, MODERADO e CRITICO para CO e NO2 sao uma classificacao
+analitica definida para este projeto, calculada a partir dos percentis do
+proprio dataset (a faixa CRITICO representa aproximadamente o decimo mais
+alto de cada poluente). Nao ha referencia a uma norma regulatoria externa.
+
+\chapter{Banco de dados}
+
+\section{Estrutura de tabelas}
+
+\begin{longtable}{>{\bfseries}p{0.32\textwidth} p{0.58\textwidth}}
+\toprule
+Tabela / visao & Finalidade \\
+\midrule
+\endhead
+\texttt{leituras\_qualidade\_ar} & Dados tratados e detalhados, uma linha por leitura horaria valida \\
+\texttt{leituras\_rejeitadas} & Leituras sem nenhum poluente de referencia \\
+\texttt{resumo\_diario\_qualidade\_ar} & Indicadores agregados por dia \\
+\texttt{resumo\_mensal\_qualidade\_ar} & Indicadores agregados por mes \\
+\texttt{vw\_indicadores\_gerais} & Indicadores gerais do periodo, usados pelo dashboard \\
+\texttt{vw\_ranking\_piores\_dias} & Os 10 dias de piores condicoes \\
+\bottomrule
+\end{longtable}
+
+O detalhamento completo das colunas esta em \texttt{docs/contrato-banco.md}
+no repositorio.
+
+\section{Reexecucao e controle de duplicidade}
+
+\begin{statusbox}[Pergunta obrigatoria do trabalho final]
+Se o pipeline for executado novamente com a mesma fonte de dados, o que
+acontece? A tabela \texttt{leituras\_qualidade\_ar} tem restricao
+\texttt{UNIQUE} em \texttt{data\_hora}, e a carga usa Insert/Update: registros
+existentes sao atualizados, nenhuma linha e duplicada. As tabelas de resumo
+seguem a mesma logica, com chave em \texttt{data\_referencia} e em
+\texttt{(ano, mes)}. A tabela de rejeitados e truncada e recarregada por
+completo a cada execucao, pois funciona como um log da ultima carga.
+\end{statusbox}
+
+Esse comportamento foi validado executando o workflow duas vezes seguidas
+sobre o mesmo arquivo fonte: a contagem de linhas em
+\texttt{leituras\_qualidade\_ar} permaneceu em 8131 nas duas execucoes.
+
+\chapter{Indicadores e dashboard}
+
+\section{Indicadores calculados}
+
+\begin{itemize}
+  \item Total de leituras tratadas e rejeitadas.
+  \item Percentual de horas em condicao critica.
+  \item CO e NO2 medios e maximos do periodo.
+  \item Evolucao mensal de CO e de NO2.
+  \item Distribuicao das leituras por nivel (BOM, MODERADO, CRITICO).
+  \item Leituras por turno do dia.
+  \item Ranking dos dez dias com piores condicoes.
+\end{itemize}
+
+\section{Dashboard}
+
+O dashboard e uma pagina HTML estatica que le os indicadores exportados do
+PostgreSQL em formato JSON pelo script \texttt{scripts/exportar\_dashboard.sh}.
+
+\evidencia{E01-dashboard-visao-geral.png}{Dashboard AeroTrack, cartoes de indicadores e graficos de evolucao mensal e classificacao}{disponivel}
+
+\evidencia{E02-dashboard-ranking-dias.png}{Ranking dos dez dias com piores condicoes registradas}{disponivel}
+
+\chapter{Validacao dos resultados}
+
+\section{Execucao do workflow completo}
+
+\begin{lstlisting}
+2026/08/17 - wf_orquestracao_qualidade_ar - Starting action [Ingestao e tratamento]
+2026/08/17 - Gravar leitura rejeitada.0 - Finished processing (I=0, O=1226, R=1226, W=1226, U=0, E=0)
+2026/08/17 - Gravar leitura tratada.0 - Finished processing (I=8131, O=8131, R=8131, W=8131, U=0, E=0)
+2026/08/17 - wf_orquestracao_qualidade_ar - Finished action [Ingestao e tratamento] (result=[true])
+2026/08/17 - wf_orquestracao_qualidade_ar - Starting action [Consolidacao de indicadores]
+2026/08/17 - Gravar resumo diario.0 - Finished processing (I=363, O=363, R=363, W=363, U=0, E=0)
+2026/08/17 - Gravar resumo mensal.0 - Finished processing (I=14, O=14, R=14, W=14, U=0, E=0)
+2026/08/17 - wf_orquestracao_qualidade_ar - Finished action [Consolidacao de indicadores] (result=[true])
+2026/08/17 - wf_orquestracao_qualidade_ar - Workflow execution finished
+\end{lstlisting}
+
+O log completo esta em \texttt{docs/evidencias/logs/execucao-workflow-completo.log}.
+
+\section{Indicadores gerais obtidos}
+
+\begin{longtable}{>{\bfseries}p{0.5\textwidth} p{0.4\textwidth}}
+\toprule
+Indicador & Valor \\
+\midrule
+\endhead
+Total de leituras tratadas & 8131 \\
+Total de leituras rejeitadas & 1226 \\
+Percentual de horas em condicao critica & 13,11\% \\
+CO medio (maximo) & 2,15 mg/m3 (11,90 mg/m3) \\
+NO2 medio (maximo) & 113,09 ug/m3 (340,00 ug/m3) \\
+Temperatura media & 17,97 graus Celsius \\
+Umidade relativa media & 48,95\% \\
+Dias consolidados & 363 \\
+Meses consolidados & 14 \\
+\bottomrule
+\end{longtable}
+
+\section{Conferencia de contagens}
+
+A soma de leituras validas (8131) e rejeitadas (1226) confere com o total de
+linhas de dados apos a remocao das 114 linhas vazias do export (9357 linhas
+originais de dados). O ranking dos piores dias mostra media de NO2 e
+percentual de horas criticas elevados nas mesmas datas de maior media de CO,
+o que e coerente com o comportamento esperado de poluentes urbanos.
+
+\chapter{Conclusao}
+
+\section{Principal resultado}
+
+O AeroTrack demonstra o ciclo completo de ETL do trabalho final: leitura de
+um dataset publico, tratamento real dentro do Apache Hop (nulos, linhas
+invalidas, conversao de tipos, classificacao), persistencia em banco
+relacional reexecutavel sem duplicidade, orquestracao por workflow e
+indicadores apresentados em um dashboard.
+
+\section{Principais decisoes tecnicas}
+
+\begin{itemize}
+  \item Combinar ingestao, tratamento, enriquecimento e carga em uma unica
+    pipeline (\texttt{pl\_01}), e a consolidacao em outra (\texttt{pl\_02}),
+    o que manteve o projeto com duas pipelines coerentes em vez de varias
+    pipelines pequenas.
+  \item Definir a classificacao de CO e NO2 a partir dos percentis reais do
+    dataset, em vez de valores arbitrarios, para que o indicador de horas
+    criticas fosse informativo.
+  \item Usar Insert/Update com chave de negocio em todas as tabelas para que
+    o processo seja seguro de reexecutar.
+\end{itemize}
+
+\section{Aprendizado}
+
+A etapa mais trabalhosa nao foi desenhar o fluxo, e sim garantir que cada
+transformacao gravasse exatamente os campos esperados, principalmente na
+combinacao entre selecao de campos, conversao de tipos e a gravacao da chave
+no Insert/Update. Cada ajuste foi validado executando a pipeline real contra
+o banco de dados, nao apenas revisando a configuracao visualmente.
+
+\chapter{Equipe}
+
+\begin{longtable}{>{\bfseries}p{0.32\textwidth} p{0.22\textwidth} p{0.36\textwidth}}
+\toprule
+Integrante & GitHub & Frente \\
+\midrule
+\endhead
+Juliana Ballin Lima & \href{https://github.com/JulianaBallin}{@JulianaBallin} & Estrutura do projeto Hop, pipelines, banco de dados, workflow, dashboard e documentacao \\
+Allef Oliveira Ramos & \href{https://github.com/allef-oliveira}{@allef-oliveira} & Regras de classificacao e revisao dos indicadores \\
+Fernanda de Oliveira da Costa & \href{https://github.com/nanda-costa}{@nanda-costa} & Validacao do tratamento de dados e do contrato do banco \\
+Pedro Henrique Oliveira Dias & \href{https://github.com/pedroddias-oss}{@pedroddias-oss} & Testes de reexecucao, evidencias e apresentacao \\
+\bottomrule
+\end{longtable}
+
+\end{document}
