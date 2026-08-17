@@ -1,0 +1,17 @@
+# Hop runtime
+hop/audit/
+hop/config/hop-config.json
+*.log
+
+# Data staging (regenerated pela pipeline)
+data/staging/
+data/rejected/
+
+# OS / editor
+.DS_Store
+*.swp
+
+# LaTeX build artifacts
+*.aux
+*.toc
+*.out

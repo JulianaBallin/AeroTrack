@@ -1,0 +1,24 @@
+name: aerotrack
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: aerotrack-hop-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aerotrack
+      POSTGRES_USER: aerotrack
+      POSTGRES_PASSWORD: aerotrack123
+    ports:
+      - "5434:5432"
+    volumes:
+      - aerotrack_postgres_data:/var/lib/postgresql/data
+      - ./init_aerotrack.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aerotrack -d aerotrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  aerotrack_postgres_data:
