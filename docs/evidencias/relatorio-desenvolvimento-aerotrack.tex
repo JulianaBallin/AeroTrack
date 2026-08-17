@@ -359,7 +359,7 @@ Enriquecimento & Value Mapper & Converte o número do dia da semana no nome por 
 Enriquecimento & Number Range & Classifica a hora em turno do dia \\
 Enriquecimento & Number Range & Classifica o nível de CO \\
 Enriquecimento & Number Range & Classifica o nível de NO2 \\
-Regra de negócio & Janino & Calcula se a leitura e válida e se a condição e crítica \\
+Regra de negócio & Janino & Calcula se a leitura é válida e se a condição é crítica \\
 Qualidade & Filter Rows & Separa leituras válidas das leituras sem poluente de referência \\
 Banco de dados & Insert/Update & Grava as leituras válidas em \texttt{leituras\_qualidade\_ar} \\
 Banco de dados & Table Output & Grava as leituras rejeitadas em \texttt{leituras\_rejeitadas} \\
@@ -390,7 +390,7 @@ Banco de dados & Insert/Update & Grava o resumo em \texttt{resumo\_mensal\_quali
 START -> Ingestion and treatment -> Indicator consolidation -> Process completed
 \end{lstlisting}
 
-O segundo hop só e seguido se a pipeline de ingestão terminar com sucesso.
+O segundo hop só é seguido se a pipeline de ingestão terminar com sucesso.
 
 \evidencia{E06-workflow-canvas.png}{Canvas de wf\_air\_quality\_orchestration no Hop Designer}{pendente de captura pela equipe}
 
@@ -410,7 +410,7 @@ CSV, antes de qualquer outro tratamento.
 
 \section{Separação de leituras inválidas}
 
-Uma leitura e considerada invalida quando os tres poluentes de referência
+Uma leitura é considerada inválida quando os três poluentes de referência
 (CO, NOx e NO2) estão todos ausentes. Essas leituras são gravadas em
 \texttt{leituras\_rejeitadas}, com o motivo da rejeicao, em vez de entrarem no
 calculo dos indicadores.
@@ -434,14 +434,18 @@ Tabela / visão & Finalidade \\
 \texttt{leituras\_qualidade\_ar} & Dados tratados e detalhados, uma linha por leitura horária válida \\
 \texttt{leituras\_rejeitadas} & Leituras sem nenhum poluente de referência \\
 \texttt{resumo\_diario\_qualidade\_ar} & Indicadores agregados por dia \\
-\texttt{resumo\_mensal\_qualidade\_ar} & Indicadores agregados por mes \\
+\texttt{resumo\_mensal\_qualidade\_ar} & Indicadores agregados por mês \\
 \texttt{vw\_indicadores\_gerais} & Indicadores gerais do período, usados pelo dashboard \\
 \texttt{vw\_ranking\_piores\_dias} & Os 10 dias de piores condições \\
 \bottomrule
 \end{longtable}
 
-O detalhamento completo das colunas está em \texttt{docs/contrato-banco.md}
-no repositorio.
+O detalhamento completo das colunas está em \texttt{docs/pt/contrato-banco.md}
+no repositório.
+
+\evidencia{E08-database-tables.png}{Tabelas e visões criadas no PostgreSQL (\texttt{psql}, \texttt{\textbackslash dt} e \texttt{\textbackslash dv})}{disponível}
+
+\evidencia{E09-database-readings-sample.png}{Amostra real de \texttt{leituras\_qualidade\_ar}, com a hora 23h já classificada corretamente como NOITE após a correção descrita no registro de ajustes}{disponível}
 
 \section{Reexecução e controle de duplicidade}
 
@@ -449,15 +453,15 @@ no repositorio.
 Se o pipeline for executado novamente com a mesma fonte de dados, o que
 acontece? A tabela \texttt{leituras\_qualidade\_ar} tem restrição
 \texttt{UNIQUE} em \texttt{data\_hora}, e a carga usa Insert/Update: registros
-existentes são atualizados, nenhuma linha e duplicada. As tabelas de resumo
+existentes são atualizados, nenhuma linha é duplicada. As tabelas de resumo
 seguem a mesma lógica, com chave em \texttt{data\_referencia} e em
-\texttt{(ano, mes)}. A tabela de rejeitados e truncada e recarregada por
+\texttt{(ano, mes)}. A tabela de rejeitados é truncada e recarregada por
 completo a cada execução, pois funciona como um log da última carga.
 \end{statusbox}
 
 Esse comportamento foi validado executando o workflow duas vezes seguidas
 sobre o mesmo arquivo fonte: a contagem de linhas em
-\texttt{leituras\_qualidade\_ar} permaneceu em 8131 nas duas execucoes.
+\texttt{leituras\_qualidade\_ar} permaneceu em 8131 nas duas execuções.
 
 \chapter{Indicadores e dashboard}
 
@@ -475,8 +479,8 @@ sobre o mesmo arquivo fonte: a contagem de linhas em
 
 \section{Dashboard}
 
-O dashboard e uma página HTML estática que lê os indicadores exportados do
-PostgreSQL em formato JSON pelo script \texttt{scripts/exportar\_dashboard.sh}.
+O dashboard é uma página HTML estática que lê os indicadores exportados do
+PostgreSQL em formato JSON pelo script \texttt{scripts/export\_dashboard.sh}.
 
 \evidencia{E01-dashboard-overview.png}{Dashboard AeroTrack, cartoes de indicadores e gráficos de evolução mensal e classificação}{disponível}
 
@@ -525,7 +529,7 @@ A soma de leituras válidas (8131) e rejeitadas (1226) confere com o total de
 linhas de dados após a remocao das 114 linhas vazias do export (9357 linhas
 originais de dados). O ranking dos piores dias mostra média de NO2 e
 percentual de horas críticas elevados nas mesmas datas de maior média de CO,
-o que e coerente com o comportamento esperado de poluentes urbanos.
+o que é coerente com o comportamento esperado de poluentes urbanos.
 
 \chapter{Conclusão}
 

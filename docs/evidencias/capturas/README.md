@@ -16,10 +16,22 @@ nome.
 | `E05-pipeline-consolidation-canvas.png` | Canvas de `pl_02_indicator_consolidation` | Pendente |
 | `E06-workflow-canvas.png` | Canvas de `wf_air_quality_orchestration` | Pendente |
 | `E07-workflow-execution-hop.png` | Execução do workflow pela interface gráfica, com o resultado de sucesso em cada ação | Pendente |
-| `E08-database-tables.png` | Cliente de banco (psql ou outro) listando as tabelas criadas | Pendente |
-| `E09-database-readings-sample.png` | Consulta `SELECT * FROM leituras_qualidade_ar LIMIT 10` | Pendente |
-| `E10-database-rerun.png` | Contagem de linhas antes e depois da reexecução do workflow, comprovando a ausência de duplicidade | Pendente |
+| `E08-database-tables.png` | Cliente de banco (psql) listando as tabelas e visões criadas | Disponível |
+| `E09-database-readings-sample.png` | Amostra real de `leituras_qualidade_ar` | Disponível |
+| `E10-database-rerun.png` | Contagem de linhas antes e depois da reexecução do workflow, comprovando a ausência de duplicidade | Disponível |
 
-As capturas pendentes são evidências visuais complementares aos logs de
-execução já registrados em `docs/evidencias/logs/`, que comprovam o mesmo
-comportamento por texto.
+As capturas E08 a E10 foram geradas renderizando a saída real do `psql`
+(mesmos dados retornados pelo banco) em um cartão estilizado, sem depender
+de uma interface gráfica.
+
+## Sobre as capturas pendentes (E03 a E07)
+
+Essas capturas dependem da interface gráfica do Apache Hop Designer. Neste
+ambiente de desenvolvimento (sessão headless, sem monitor), não foi possível
+gerá-las de forma isolada e segura: o único display X disponível é a
+área de trabalho real de quem executa o agente, e abrir o Hop Designer nela
+apareceria na tela da pessoa em vez de em algo isolado. Por isso, essas
+capturas ficam como tarefa da equipe, feitas localmente ao abrir o projeto
+no Hop Designer. O comportamento que elas ilustrariam já está comprovado por
+texto nos logs de execução em `docs/evidencias/logs/` e nas capturas E08 a
+E10.
