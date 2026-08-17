@@ -72,7 +72,7 @@ para a evolução temporal exibida no dashboard.
 | Visão | Uso |
 | --- | --- |
 | `vw_indicadores_gerais` | Indicadores agregados do período inteiro, usados nos cartoes do dashboard |
-| `vw_ranking_piores_dias` | Os 10 dias com maior média de CO, usados no ranking do dashboard e do relatorio |
+| `vw_ranking_piores_dias` | Os 10 dias com maior média de CO, usados no ranking do dashboard e do relatório |
 
 ## Relacionamento lógico
 

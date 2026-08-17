@@ -46,7 +46,7 @@ Esse passo só precisa ser feito uma vez por máquina:
 ```bash
 cd ..
 hop-conf.sh -pc -p aerotrack -ph "$(pwd)/hop" -pf project-config.json -pkf \
-  -ps "AeroTrack - trabalho final Modulo 6 Apache Hop"
+  -ps "AeroTrack - trabalho final Módulo 6 Apache Hop"
 ```
 
 Confirme que o projeto foi registrado:
