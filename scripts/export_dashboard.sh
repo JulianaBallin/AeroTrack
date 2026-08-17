@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Exporta os indicadores do banco de dados para o arquivo JSON consumido pelo dashboard estatico.
-# Deve ser executado apos o workflow wf_orquestracao_qualidade_ar processar os dados.
+# Exports the indicators from the database to the JSON file consumed by the static dashboard.
+# Must be run after the wf_air_quality_orchestration workflow has processed the data.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -26,4 +26,4 @@ SELECT json_build_object(
   'registros_tratados', (SELECT count(*) FROM leituras_qualidade_ar)
 );" > "$OUTPUT_FILE"
 
-echo "Indicadores exportados para $OUTPUT_FILE"
+echo "Indicators exported to $OUTPUT_FILE"

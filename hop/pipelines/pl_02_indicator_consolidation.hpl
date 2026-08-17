@@ -8,9 +8,9 @@
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
     <parameters/>
-    <name>pl_02_consolidacao_indicadores</name>
+    <name>pl_02_indicator_consolidation</name>
     <name_sync_with_filename>N</name_sync_with_filename>
-    <description>Le as leituras tratadas no banco de dados, calcula os indicadores diarios e mensais e grava os resumos usados pelo dashboard.</description>
+    <description>Reads the treated readings from the database, calculates daily and monthly indicators and writes the summaries used by the dashboard.</description>
     <extended_description/>
     <created_user>-</created_user>
     <modified_user>-</modified_user>
@@ -20,7 +20,7 @@
 
   <transform>
     <type>TableInput</type>
-    <name>Calcular resumo diario</name>
+    <name>Calculate daily summary</name>
     <sql>SELECT
     data_referencia,
     COUNT(*) AS total_leituras,
@@ -53,7 +53,7 @@ ORDER BY data_referencia;</sql>
 
   <transform>
     <type>InsertUpdate</type>
-    <name>Gravar resumo diario</name>
+    <name>Write daily summary</name>
     <lookup>
       <key><name>data_referencia</name><field>data_referencia</field><condition>=</condition></key>
       <value><name>data_referencia</name><rename>data_referencia</rename><update>N</update></value>
@@ -84,7 +84,7 @@ ORDER BY data_referencia;</sql>
 
   <transform>
     <type>TableInput</type>
-    <name>Calcular resumo mensal</name>
+    <name>Calculate monthly summary</name>
     <sql>SELECT
     ano,
     mes,
@@ -114,7 +114,7 @@ ORDER BY ano, mes;</sql>
 
   <transform>
     <type>InsertUpdate</type>
-    <name>Gravar resumo mensal</name>
+    <name>Write monthly summary</name>
     <lookup>
       <key><name>ano</name><field>ano</field><condition>=</condition></key>
       <key><name>mes</name><field>mes</field><condition>=</condition></key>
@@ -142,8 +142,8 @@ ORDER BY ano, mes;</sql>
   </transform>
 
   <order>
-    <hop><from>Calcular resumo diario</from><to>Gravar resumo diario</to><enabled>Y</enabled></hop>
-    <hop><from>Calcular resumo mensal</from><to>Gravar resumo mensal</to><enabled>Y</enabled></hop>
+    <hop><from>Calculate daily summary</from><to>Write daily summary</to><enabled>Y</enabled></hop>
+    <hop><from>Calculate monthly summary</from><to>Write monthly summary</to><enabled>Y</enabled></hop>
   </order>
   <notepads/>
   <attributes/>

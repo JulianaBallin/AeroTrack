@@ -8,9 +8,9 @@
     <pipeline_type>Normal</pipeline_type>
     <pipeline_status>0</pipeline_status>
     <parameters/>
-    <name>pl_01_ingestao_tratamento</name>
+    <name>pl_01_ingestion_treatment</name>
     <name_sync_with_filename>N</name_sync_with_filename>
-    <description>Le o dataset bruto de qualidade do ar, remove linhas vazias, converte tipos, trata valores ausentes (-200), aplica regras de classificacao e grava as leituras tratadas e as rejeitadas no banco de dados.</description>
+    <description>Reads the raw air quality dataset, removes empty rows, converts types, handles missing values (-200), applies classification rules and writes the treated and rejected readings to the database.</description>
     <extended_description/>
     <created_user>-</created_user>
     <modified_user>-</modified_user>
@@ -20,7 +20,7 @@
 
   <transform>
     <type>CSVInput</type>
-    <name>Ler leituras brutas</name>
+    <name>Read raw readings</name>
     <filename>${PROJECT_HOME}/../data/raw/AirQualityUCI.csv</filename>
     <include_filename>N</include_filename>
     <rownum_field/>
@@ -63,7 +63,7 @@
 
   <transform>
     <type>FilterRows</type>
-    <name>Remover linhas vazias</name>
+    <name>Remove empty rows</name>
     <compare>
       <condition>
         <negated>N</negated>
@@ -73,8 +73,8 @@
         <conditions></conditions>
       </condition>
     </compare>
-    <send_true_to>Montar texto de data e hora</send_true_to>
-    <send_false_to>Descartar linha vazia</send_false_to>
+    <send_true_to>Build date and time text</send_true_to>
+    <send_false_to>Discard empty row</send_false_to>
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI><xloc>256</xloc><yloc>64</yloc></GUI>
@@ -84,7 +84,7 @@
 
   <transform>
     <type>Dummy</type>
-    <name>Descartar linha vazia</name>
+    <name>Discard empty row</name>
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI><xloc>256</xloc><yloc>176</yloc></GUI>
@@ -94,7 +94,7 @@
 
   <transform>
     <type>Formula</type>
-    <name>Montar texto de data e hora</name>
+    <name>Build date and time text</name>
     <formulas>
       <formula>
         <field_name>data_hora_texto</field_name>
@@ -114,7 +114,7 @@
 
   <transform>
     <type>NullIf</type>
-    <name>Tratar valores ausentes (-200)</name>
+    <name>Handle missing values (-200)</name>
     <fields>
       <field><name>co_gt_raw</name><value>-200</value></field>
       <field><name>pt08_s1_co_raw</name><value>-200</value></field>
@@ -139,7 +139,7 @@
 
   <transform>
     <type>SelectValues</type>
-    <name>Selecionar e renomear campos</name>
+    <name>Select and rename fields</name>
     <fields>
       <field><name>co_gt_raw</name><rename>co_gt</rename><length>-2</length><precision>-2</precision></field>
       <field><name>pt08_s1_co_raw</name><rename>pt08_s1_co</rename><length>-2</length><precision>-2</precision></field>
@@ -166,7 +166,7 @@
 
   <transform>
     <type>SelectValues</type>
-    <name>Converter texto para data e hora</name>
+    <name>Convert text to date and time</name>
     <fields>
       <select_unspecified>N</select_unspecified>
       <meta>
@@ -189,7 +189,7 @@
 
   <transform>
     <type>Calculator</type>
-    <name>Calcular partes da data</name>
+    <name>Calculate date parts</name>
     <calculation>
       <field_name>ano</field_name>
       <calc_type>YEAR_OF_DATE</calc_type>
@@ -253,7 +253,7 @@
 
   <transform>
     <type>ValueMapper</type>
-    <name>Definir nome do dia da semana</name>
+    <name>Set weekday name</name>
     <field_to_use>dia_semana_num</field_to_use>
     <target_field>dia_semana</target_field>
     <non_match_default>INDEFINIDO</non_match_default>
@@ -276,7 +276,7 @@
 
   <transform>
     <type>NumberRange</type>
-    <name>Classificar turno do dia</name>
+    <name>Classify time of day</name>
     <inputField>hora</inputField>
     <outputField>turno</outputField>
     <fallBackValue>INDEFINIDO</fallBackValue>
@@ -295,7 +295,7 @@
 
   <transform>
     <type>NumberRange</type>
-    <name>Classificar nivel de CO</name>
+    <name>Classify CO level</name>
     <inputField>co_gt</inputField>
     <outputField>co_nivel</outputField>
     <fallBackValue>SEM_DADO</fallBackValue>
@@ -313,7 +313,7 @@
 
   <transform>
     <type>NumberRange</type>
-    <name>Classificar nivel de NO2</name>
+    <name>Classify NO2 level</name>
     <inputField>no2_gt</inputField>
     <outputField>no2_nivel</outputField>
     <fallBackValue>SEM_DADO</fallBackValue>
@@ -331,7 +331,7 @@
 
   <transform>
     <type>Janino</type>
-    <name>Calcular indicadores de qualidade</name>
+    <name>Calculate quality flags</name>
     <formula>
       <field_name>leitura_valida</field_name>
       <formula_string>(co_gt != null || nox_gt != null || no2_gt != null) ? "S" : "N"</formula_string>
@@ -363,7 +363,7 @@
 
   <transform>
     <type>FilterRows</type>
-    <name>Separar leituras validas</name>
+    <name>Split valid readings</name>
     <compare>
       <condition>
         <negated>N</negated>
@@ -381,8 +381,8 @@
         <conditions></conditions>
       </condition>
     </compare>
-    <send_true_to>Gravar leitura tratada</send_true_to>
-    <send_false_to>Gravar leitura rejeitada</send_false_to>
+    <send_true_to>Write treated reading</send_true_to>
+    <send_false_to>Write rejected reading</send_false_to>
     <distribute>Y</distribute>
     <copies>1</copies>
     <GUI><xloc>2368</xloc><yloc>64</yloc></GUI>
@@ -392,7 +392,7 @@
 
   <transform>
     <type>InsertUpdate</type>
-    <name>Gravar leitura tratada</name>
+    <name>Write treated reading</name>
     <lookup>
       <key><name>data_hora</name><field>data_hora</field><condition>=</condition></key>
       <value><name>data_hora</name><rename>data_hora</rename><update>N</update></value>
@@ -434,7 +434,7 @@
 
   <transform>
     <type>TableOutput</type>
-    <name>Gravar leitura rejeitada</name>
+    <name>Write rejected reading</name>
     <connection>PostgreSQL_AeroTrack</connection>
     <schema/>
     <table>leituras_rejeitadas</table>
@@ -469,21 +469,21 @@
   </transform>
 
   <order>
-    <hop><from>Ler leituras brutas</from><to>Remover linhas vazias</to><enabled>Y</enabled></hop>
-    <hop><from>Remover linhas vazias</from><to>Montar texto de data e hora</to><enabled>Y</enabled></hop>
-    <hop><from>Remover linhas vazias</from><to>Descartar linha vazia</to><enabled>Y</enabled></hop>
-    <hop><from>Montar texto de data e hora</from><to>Tratar valores ausentes (-200)</to><enabled>Y</enabled></hop>
-    <hop><from>Tratar valores ausentes (-200)</from><to>Selecionar e renomear campos</to><enabled>Y</enabled></hop>
-    <hop><from>Selecionar e renomear campos</from><to>Converter texto para data e hora</to><enabled>Y</enabled></hop>
-    <hop><from>Converter texto para data e hora</from><to>Calcular partes da data</to><enabled>Y</enabled></hop>
-    <hop><from>Calcular partes da data</from><to>Definir nome do dia da semana</to><enabled>Y</enabled></hop>
-    <hop><from>Definir nome do dia da semana</from><to>Classificar turno do dia</to><enabled>Y</enabled></hop>
-    <hop><from>Classificar turno do dia</from><to>Classificar nivel de CO</to><enabled>Y</enabled></hop>
-    <hop><from>Classificar nivel de CO</from><to>Classificar nivel de NO2</to><enabled>Y</enabled></hop>
-    <hop><from>Classificar nivel de NO2</from><to>Calcular indicadores de qualidade</to><enabled>Y</enabled></hop>
-    <hop><from>Calcular indicadores de qualidade</from><to>Separar leituras validas</to><enabled>Y</enabled></hop>
-    <hop><from>Separar leituras validas</from><to>Gravar leitura tratada</to><enabled>Y</enabled></hop>
-    <hop><from>Separar leituras validas</from><to>Gravar leitura rejeitada</to><enabled>Y</enabled></hop>
+    <hop><from>Read raw readings</from><to>Remove empty rows</to><enabled>Y</enabled></hop>
+    <hop><from>Remove empty rows</from><to>Build date and time text</to><enabled>Y</enabled></hop>
+    <hop><from>Remove empty rows</from><to>Discard empty row</to><enabled>Y</enabled></hop>
+    <hop><from>Build date and time text</from><to>Handle missing values (-200)</to><enabled>Y</enabled></hop>
+    <hop><from>Handle missing values (-200)</from><to>Select and rename fields</to><enabled>Y</enabled></hop>
+    <hop><from>Select and rename fields</from><to>Convert text to date and time</to><enabled>Y</enabled></hop>
+    <hop><from>Convert text to date and time</from><to>Calculate date parts</to><enabled>Y</enabled></hop>
+    <hop><from>Calculate date parts</from><to>Set weekday name</to><enabled>Y</enabled></hop>
+    <hop><from>Set weekday name</from><to>Classify time of day</to><enabled>Y</enabled></hop>
+    <hop><from>Classify time of day</from><to>Classify CO level</to><enabled>Y</enabled></hop>
+    <hop><from>Classify CO level</from><to>Classify NO2 level</to><enabled>Y</enabled></hop>
+    <hop><from>Classify NO2 level</from><to>Calculate quality flags</to><enabled>Y</enabled></hop>
+    <hop><from>Calculate quality flags</from><to>Split valid readings</to><enabled>Y</enabled></hop>
+    <hop><from>Split valid readings</from><to>Write treated reading</to><enabled>Y</enabled></hop>
+    <hop><from>Split valid readings</from><to>Write rejected reading</to><enabled>Y</enabled></hop>
   </order>
   <notepads/>
   <attributes/>
