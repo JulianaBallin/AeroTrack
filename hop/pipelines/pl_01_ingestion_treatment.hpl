@@ -284,7 +284,7 @@
       <rule><lower_bound>-1</lower_bound><upper_bound>5</upper_bound><value>MADRUGADA</value></rule>
       <rule><lower_bound>5</lower_bound><upper_bound>11</upper_bound><value>MANHA</value></rule>
       <rule><lower_bound>11</lower_bound><upper_bound>17</upper_bound><value>TARDE</value></rule>
-      <rule><lower_bound>17</lower_bound><upper_bound>23</upper_bound><value>NOITE</value></rule>
+      <rule><lower_bound>17</lower_bound><upper_bound>24</upper_bound><value>NOITE</value></rule>
     </rules>
     <distribute>Y</distribute>
     <copies>1</copies>

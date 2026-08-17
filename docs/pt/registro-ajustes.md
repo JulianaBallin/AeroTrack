@@ -56,6 +56,17 @@ aproximadamente o décimo mais alto de cada poluente. Após o ajuste, o
 percentual de horas em condição crítica caiu para 13,11%, um valor mais util
 para destacar os períodos realmente piores.
 
+### Hora 23 sem turno (INDEFINIDO)
+
+A regra `NumberRange` que classifica o turno do dia tinha a faixa de NOITE
+definida como `17 < hora <= 23`, o que excluía a própria hora 23 (o limite
+superior era exclusivo). Toda leitura das 23h caía no valor de fallback
+`INDEFINIDO`. O ajuste foi estender o limite superior da faixa NOITE para
+24. Encontrado ao inspecionar uma amostra real de `leituras_qualidade_ar`
+para gerar as evidências do relatório, não pelos testes automatizados de
+contagem, que não detectam uma categoria incorreta se o total de linhas
+continua batendo.
+
 ## Como cada ajuste foi validado
 
 Cada ajuste foi validado executando a pipeline ou o workflow completo pela
