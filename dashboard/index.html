@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>AeroTrack | Dashboard de qualidade do ar</title>
+<title>AeroTrack | Air Quality Dashboard</title>
 <style>
   :root {
     color-scheme: light;
@@ -20,9 +20,10 @@
     --series-3: #1baf7a;
     --series-4: #4a3aa7;
     --good: #0ca30c;
-    --warning: #fab219;
+    --warning: #e8a300;
     --critical: #d03b3b;
     --muted-slot: #c3c2b7;
+    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px rgba(11,11,11,0.06);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -40,9 +41,10 @@
       --series-3: #199e70;
       --series-4: #9085e9;
       --good: #0ca30c;
-      --warning: #fab219;
+      --warning: #e8a300;
       --critical: #e66767;
       --muted-slot: #52514e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.35);
     }
   }
   :root[data-theme="dark"] {
@@ -60,9 +62,10 @@
     --series-3: #199e70;
     --series-4: #9085e9;
     --good: #0ca30c;
-    --warning: #fab219;
+    --warning: #e8a300;
     --critical: #e66767;
     --muted-slot: #52514e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.35);
   }
 
   * { box-sizing: border-box; }
@@ -82,9 +85,10 @@
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-mark {
-    width: 40px; height: 40px; border-radius: 10px;
+    width: 42px; height: 42px; border-radius: 12px;
     background: linear-gradient(135deg, var(--series-1), var(--series-3));
     display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
   }
   .brand-mark svg { width: 24px; height: 24px; }
   h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
@@ -101,8 +105,10 @@
   .tile {
     background: var(--surface-1);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 16px 18px;
+    box-shadow: var(--shadow);
+    transition: transform 0.15s ease;
   }
   .tile .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
   .tile .value { font-size: 1.65rem; font-weight: 600; margin-top: 4px; }
@@ -112,9 +118,10 @@
   section.panel {
     background: var(--surface-1);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 18px 20px 8px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow);
   }
   .panel h2 { font-size: 0.95rem; margin: 0 0 2px; }
   .panel .desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px; }
@@ -151,45 +158,45 @@
     </div>
     <div>
       <h1>AeroTrack</h1>
-      <p>Monitoramento de qualidade do ar &middot; leituras horarias tratadas pelo Apache Hop</p>
+      <p>Air quality monitoring &middot; hourly readings processed by Apache Hop</p>
     </div>
   </div>
-  <div class="meta" id="geradoEm"></div>
+  <div class="meta" id="generatedAt"></div>
 </header>
 
 <main>
   <div class="tiles" id="tiles"></div>
 
   <section class="panel">
-    <h2>Evolucao mensal</h2>
-    <p class="desc">Media mensal de CO e de NO2 nas leituras tratadas (cada poluente em sua propria escala).</p>
+    <h2>Monthly trend</h2>
+    <p class="desc">Monthly average of CO and NO2 across treated readings (each pollutant on its own scale).</p>
     <div class="chart-row">
-      <div class="chart-box"><canvas id="chartCoMensal"></canvas></div>
-      <div class="chart-box"><canvas id="chartNo2Mensal"></canvas></div>
+      <div class="chart-box"><canvas id="chartCoMonthly"></canvas></div>
+      <div class="chart-box"><canvas id="chartNo2Monthly"></canvas></div>
     </div>
   </section>
 
   <section class="panel">
-    <h2>Classificacao das leituras</h2>
-    <p class="desc">Distribuicao das leituras por nivel de CO e de NO2 (classificacao analitica definida para o projeto).</p>
+    <h2>Reading classification</h2>
+    <p class="desc">Distribution of readings by CO and NO2 level (analytical classification defined for this project).</p>
     <div class="chart-row">
-      <div class="chart-box"><canvas id="chartCoNivel"></canvas></div>
-      <div class="chart-box"><canvas id="chartNo2Nivel"></canvas></div>
+      <div class="chart-box"><canvas id="chartCoLevel"></canvas></div>
+      <div class="chart-box"><canvas id="chartNo2Level"></canvas></div>
     </div>
   </section>
 
   <section class="panel">
-    <h2>Leituras por turno do dia</h2>
-    <p class="desc">Quantidade de leituras tratadas por faixa horaria (madrugada, manha, tarde, noite).</p>
-    <div class="chart-box" style="height:200px; max-width:520px;"><canvas id="chartTurno"></canvas></div>
+    <h2>Readings by time of day</h2>
+    <p class="desc">Number of treated readings per shift (night, morning, afternoon, evening).</p>
+    <div class="chart-box" style="height:200px; max-width:520px;"><canvas id="chartShift"></canvas></div>
   </section>
 
   <section class="panel">
-    <h2>Ranking dos 10 dias com piores condicoes</h2>
-    <p class="desc">Dias ordenados pela maior media diaria de CO, com media de NO2 e percentual de horas em condicao critica.</p>
-    <table id="tabelaRanking">
+    <h2>Ranking of the 10 worst days</h2>
+    <p class="desc">Days sorted by the highest daily average CO, with average NO2 and percentage of hours in critical condition.</p>
+    <table id="rankingTable">
       <thead>
-        <tr><th>Data</th><th>CO medio</th><th>NO2 medio</th><th>Horas criticas</th><th>% horas criticas</th></tr>
+        <tr><th>Date</th><th>Avg. CO</th><th>Avg. NO2</th><th>Critical hours</th><th>% critical hours</th></tr>
       </thead>
       <tbody></tbody>
     </table>
@@ -197,7 +204,7 @@
 </main>
 
 <footer>
-  AeroTrack &middot; Projeto academico &middot; Capacitacao em IA e Transformacao Digital &middot; Modulo 6 (Apache Hop)
+  AeroTrack &middot; Academic project &middot; AI and Digital Transformation Program &middot; Module 6 (Apache Hop)
 </footer>
 
 <script src="vendor/chart.umd.min.js"></script>
@@ -212,19 +219,19 @@ async function main() {
   Chart.defaults.color = c('--text-secondary');
   Chart.defaults.borderColor = c('--grid');
 
-  document.getElementById('geradoEm').textContent =
-    'Indicadores gerados em ' + new Date(data.gerado_em).toLocaleString('pt-BR');
+  document.getElementById('generatedAt').textContent =
+    'Indicators generated at ' + new Date(data.gerado_em).toLocaleString('en-US');
 
   const g = data.indicadores_gerais;
   const tiles = [
-    { label: 'Leituras tratadas', value: g.total_leituras.toLocaleString('pt-BR') },
-    { label: 'Registros rejeitados', value: data.registros_rejeitados.toLocaleString('pt-BR'),
-      sub: 'sem leitura de CO, NOx e NO2' },
-    { label: '% horas em condicao critica', value: g.percentual_horas_criticas + '%', critical: true },
-    { label: 'CO medio (mg/m3)', value: g.co_medio_geral, sub: 'maximo ' + g.co_maximo_geral },
-    { label: 'NO2 medio (ug/m3)', value: g.no2_medio_geral, sub: 'maximo ' + g.no2_maximo_geral },
-    { label: 'Temperatura media', value: g.temperatura_media_geral + ' °C' },
-    { label: 'Umidade relativa media', value: g.umidade_media_geral + '%' },
+    { label: 'Treated readings', value: g.total_leituras.toLocaleString('en-US') },
+    { label: 'Rejected records', value: data.registros_rejeitados.toLocaleString('en-US'),
+      sub: 'no CO, NOx or NO2 reading' },
+    { label: '% hours in critical condition', value: g.percentual_horas_criticas + '%', critical: true },
+    { label: 'Avg. CO (mg/m3)', value: g.co_medio_geral, sub: 'max ' + g.co_maximo_geral },
+    { label: 'Avg. NO2 (ug/m3)', value: g.no2_medio_geral, sub: 'max ' + g.no2_maximo_geral },
+    { label: 'Avg. temperature', value: g.temperatura_media_geral + ' °C' },
+    { label: 'Avg. relative humidity', value: g.umidade_media_geral + '%' },
   ];
   document.getElementById('tiles').innerHTML = tiles.map(t => `
     <div class="tile">
@@ -233,14 +240,14 @@ async function main() {
       ${t.sub ? `<div class="sub">${t.sub}</div>` : ''}
     </div>`).join('');
 
-  const mesNome = m => ['', 'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][m];
-  const labelsMensal = data.evolucao_mensal.map(r => mesNome(r.mes) + '/' + String(r.ano).slice(2));
+  const monthName = m => ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+  const monthlyLabels = data.evolucao_mensal.map(r => monthName(r.mes) + '/' + String(r.ano).slice(2));
 
   function lineChart(canvasId, values, color, yLabel) {
     new Chart(document.getElementById(canvasId), {
       type: 'line',
       data: {
-        labels: labelsMensal,
+        labels: monthlyLabels,
         datasets: [{
           data: values,
           borderColor: color,
@@ -262,20 +269,21 @@ async function main() {
       }
     });
   }
-  lineChart('chartCoMensal', data.evolucao_mensal.map(r => r.co_medio), c('--series-1'), 'CO medio (mg/m3)');
-  lineChart('chartNo2Mensal', data.evolucao_mensal.map(r => r.no2_medio), c('--series-2'), 'NO2 medio (ug/m3)');
+  lineChart('chartCoMonthly', data.evolucao_mensal.map(r => r.co_medio), c('--series-1'), 'Avg. CO (mg/m3)');
+  lineChart('chartNo2Monthly', data.evolucao_mensal.map(r => r.no2_medio), c('--series-2'), 'Avg. NO2 (ug/m3)');
 
-  function niveisChart(canvasId, dist) {
+  function levelChart(canvasId, dist) {
     const order = ['BOM', 'MODERADO', 'CRITICO', 'SEM_DADO'];
+    const labelFor = { BOM: 'GOOD', MODERADO: 'MODERATE', CRITICO: 'CRITICAL', SEM_DADO: 'NO DATA' };
     const colorFor = { BOM: c('--good'), MODERADO: c('--warning'), CRITICO: c('--critical'), SEM_DADO: c('--muted-slot') };
-    const byNivel = Object.fromEntries(dist.map(d => [d[Object.keys(d)[0]], d.quantidade]));
-    const present = order.filter(n => byNivel[n] !== undefined);
+    const byLevel = Object.fromEntries(dist.map(d => [d[Object.keys(d)[0]], d.quantidade]));
+    const present = order.filter(n => byLevel[n] !== undefined);
     new Chart(document.getElementById(canvasId), {
       type: 'bar',
       data: {
-        labels: present,
+        labels: present.map(n => labelFor[n]),
         datasets: [{
-          data: present.map(n => byNivel[n]),
+          data: present.map(n => byLevel[n]),
           backgroundColor: present.map(n => colorFor[n]),
           borderRadius: 4,
           maxBarThickness: 46,
@@ -292,19 +300,20 @@ async function main() {
       }
     });
   }
-  niveisChart('chartCoNivel', data.distribuicao_co_nivel);
-  niveisChart('chartNo2Nivel', data.distribuicao_no2_nivel);
+  levelChart('chartCoLevel', data.distribuicao_co_nivel);
+  levelChart('chartNo2Level', data.distribuicao_no2_nivel);
 
-  const turnoOrder = ['MADRUGADA', 'MANHA', 'TARDE', 'NOITE'];
-  const turnoColors = [c('--series-1'), c('--series-2'), c('--series-3'), c('--series-4')];
-  const turnoByName = Object.fromEntries(data.leituras_por_turno.map(t => [t.turno, t.quantidade]));
-  new Chart(document.getElementById('chartTurno'), {
+  const shiftOrder = ['MADRUGADA', 'MANHA', 'TARDE', 'NOITE'];
+  const shiftLabels = ['NIGHT', 'MORNING', 'AFTERNOON', 'EVENING'];
+  const shiftColors = [c('--series-1'), c('--series-2'), c('--series-3'), c('--series-4')];
+  const shiftByName = Object.fromEntries(data.leituras_por_turno.map(t => [t.turno, t.quantidade]));
+  new Chart(document.getElementById('chartShift'), {
     type: 'bar',
     data: {
-      labels: turnoOrder,
+      labels: shiftLabels,
       datasets: [{
-        data: turnoOrder.map(t => turnoByName[t] || 0),
-        backgroundColor: turnoColors,
+        data: shiftOrder.map(t => shiftByName[t] || 0),
+        backgroundColor: shiftColors,
         borderRadius: 4,
         maxBarThickness: 60,
       }]
@@ -321,10 +330,10 @@ async function main() {
     }
   });
 
-  const tbody = document.querySelector('#tabelaRanking tbody');
+  const tbody = document.querySelector('#rankingTable tbody');
   tbody.innerHTML = data.ranking_piores_dias.map(r => `
     <tr>
-      <td>${new Date(r.data_referencia).toLocaleDateString('pt-BR')}</td>
+      <td>${new Date(r.data_referencia).toLocaleDateString('en-US')}</td>
       <td>${r.co_medio}</td>
       <td>${r.no2_medio}</td>
       <td>${r.horas_condicao_critica}</td>
