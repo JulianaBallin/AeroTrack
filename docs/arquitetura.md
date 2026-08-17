@@ -1,109 +1,109 @@
-# Arquitetura da solucao
+# Arquitetura da solução
 
-## Visao geral
+## Visão geral
 
-O AeroTrack segue a estrutura minima pedida no trabalho final do Modulo 6:
-fonte de dados, pipeline de ingestao, tratamento e qualidade, regras de
-enriquecimento, banco de dados, pipeline de consolidacao, indicadores e
+O AeroTrack segue a estrutura mínima pedida no trabalho final do Módulo 6:
+fonte de dados, pipeline de ingestão, tratamento e qualidade, regras de
+enriquecimento, banco de dados, pipeline de consolidação, indicadores e
 dashboard.
 
 ```text
-Fonte de dados (CSV publico, UCI Air Quality)
+Fonte de dados (CSV público, UCI Air Quality)
   |
-Pipeline de ingestao e tratamento (pl_01_ingestao_tratamento.hpl)
+Pipeline de ingestão e tratamento (pl_01_ingestion_treatment.hpl)
   |
-Regras de classificacao (nivel de CO, nivel de NO2, turno do dia)
+Regras de classificação (nível de CO, nível de NO2, turno do dia)
   |
 Banco de dados PostgreSQL (leituras_qualidade_ar, leituras_rejeitadas)
   |
-Pipeline de consolidacao (pl_02_consolidacao_indicadores.hpl)
+Pipeline de consolidação (pl_02_indicator_consolidation.hpl)
   |
 Indicadores (resumo_diario_qualidade_ar, resumo_mensal_qualidade_ar)
   |
 Dashboard (dashboard/index.html)
 ```
 
-As duas pipelines nao sao executadas manualmente em sequencia: o workflow
-`wf_orquestracao_qualidade_ar.hwf` orquestra a execucao de `pl_01` e, somente
-apos o sucesso dela, executa `pl_02`.
+As duas pipelines não são executadas manualmente em sequência: o workflow
+`wf_air_quality_orchestration.hwf` orquestra a execução de `pl_01` e, somente
+após o sucesso dela, executa `pl_02`.
 
-## pl_01_ingestao_tratamento
+## pl_01_ingestion_treatment
 
-| Etapa | Transformacao Hop | O que faz |
+| Etapa | Transformação Hop | O que faz |
 | --- | --- | --- |
-| Ingestao | `CSVInput` | Le `data/raw/AirQualityUCI.csv` (separador `;`, decimal `,`) |
+| Ingestão | `CSVInput` | Le `data/raw/AirQualityUCI.csv` (separador `;`, decimal `,`) |
 | Qualidade | `FilterRows` | Remove as linhas totalmente vazias que o export do dataset deixa no final do arquivo |
-| Tratamento | `Formula` | Combina as colunas de data e hora originais em um texto unico |
-| Tratamento | `NullIf` | Converte o valor sentinela `-200` (ausencia de leitura) em nulo, para os 13 campos numericos |
-| Tratamento | `SelectValues` (selecao) | Renomeia os campos numericos tratados e remove os campos auxiliares |
+| Tratamento | `Formula` | Combina as colunas de data e hora originais em um texto único |
+| Tratamento | `NullIf` | Converte o valor sentinela `-200` (ausencia de leitura) em nulo, para os 13 campos numéricos |
+| Tratamento | `SelectValues` (seleção) | Renomeia os campos numéricos tratados e remove os campos auxiliares |
 | Tratamento | `SelectValues` (metadados) | Converte o texto de data e hora para o tipo Data |
-| Enriquecimento | `Calculator` | Deriva ano, mes, dia, hora, dia da semana (numero) e a data de referencia |
-| Enriquecimento | `ValueMapper` | Converte o numero do dia da semana no nome por extenso |
-| Enriquecimento | `NumberRange` (turno) | Classifica a hora em madrugada, manha, tarde ou noite |
-| Enriquecimento | `NumberRange` (CO) | Classifica `co_gt` em BOM, MODERADO ou CRITICO |
-| Enriquecimento | `NumberRange` (NO2) | Classifica `no2_gt` em BOM, MODERADO ou CRITICO |
-| Regra de negocio | `Janino` | Calcula se a leitura e valida (possui ao menos um poluente de referencia) e se a condicao e critica |
-| Qualidade | `FilterRows` | Separa leituras validas das leituras sem nenhum poluente de referencia |
-| Banco de dados | `InsertUpdate` | Grava as leituras validas em `leituras_qualidade_ar`, com chave em `data_hora` |
+| Enriquecimento | `Calculator` | Deriva ano, mes, dia, hora, dia da semana (número) e a data de referência |
+| Enriquecimento | `ValueMapper` | Converte o número do dia da semana no nome por extenso |
+| Enriquecimento | `NumberRange` (turno) | Classifica a hora em madrugada, manhã, tarde ou noite |
+| Enriquecimento | `NumberRange` (CO) | Classifica `co_gt` em BOM, MODERADO ou CRÍTICO |
+| Enriquecimento | `NumberRange` (NO2) | Classifica `no2_gt` em BOM, MODERADO ou CRÍTICO |
+| Regra de negócio | `Janino` | Calcula se a leitura é válida (possui ao menos um poluente de referência) e se a condição é crítica |
+| Qualidade | `FilterRows` | Separa leituras válidas das leituras sem nenhum poluente de referência |
+| Banco de dados | `InsertUpdate` | Grava as leituras válidas em `leituras_qualidade_ar`, com chave em `data_hora` |
 | Banco de dados | `TableOutput` | Grava as leituras rejeitadas em `leituras_rejeitadas` |
 
 ### Por que o valor -200 precisa de tratamento explicito
 
-O dataset original usa `-200` para indicar ausencia de leitura em qualquer
-sensor. Sem tratamento, esse valor distorceria drasticamente as medias e os
+O dataset original usa `-200` para indicar ausência de leitura em qualquer
+sensor. Sem tratamento, esse valor distorceria drasticamente as médias e os
 indicadores. O passo `NullIf` converte esse sentinela em nulo antes de
-qualquer agregacao, e o Janino identifica quando uma linha ficou sem nenhum
-poluente de referencia (CO, NOx e NO2) para separa-la do fluxo principal.
+qualquer agregação, e o Janino identifica quando uma linha ficou sem nenhum
+poluente de referência (CO, NOx e NO2) para separa-la do fluxo principal.
 
-### Classificacao analitica
+### Classificação analítica
 
-As faixas de BOM, MODERADO e CRITICO para CO e NO2 nao seguem uma norma
-regulatoria externa. Sao uma classificacao analitica definida para este
-projeto, calculada a partir da distribuicao real do dataset (a faixa CRITICO
-representa aproximadamente o decimo mais alto de cada poluente), para que o
-indicador de horas criticas seja informativo em vez de trivial.
+As faixas de BOM, MODERADO e CRÍTICO para CO e NO2 não seguem uma norma
+regulatória externa. São uma classificação analítica definida para este
+projeto, calculada a partir da distribuição real do dataset (a faixa CRÍTICO
+representa aproximadamente o décimo mais alto de cada poluente), para que o
+indicador de horas críticas seja informativo em vez de trivial.
 
-## pl_02_consolidacao_indicadores
+## pl_02_indicator_consolidation
 
-| Etapa | Transformacao Hop | O que faz |
+| Etapa | Transformação Hop | O que faz |
 | --- | --- | --- |
-| Consolidacao diaria | `TableInput` | Agrega `leituras_qualidade_ar` por `data_referencia` |
+| Consolidação diária | `TableInput` | Agrega `leituras_qualidade_ar` por `data_referencia` |
 | Banco de dados | `InsertUpdate` | Grava o resumo em `resumo_diario_qualidade_ar`, com chave em `data_referencia` |
-| Consolidacao mensal | `TableInput` | Agrega `leituras_qualidade_ar` por `ano` e `mes` |
+| Consolidação mensal | `TableInput` | Agrega `leituras_qualidade_ar` por `ano` e `mes` |
 | Banco de dados | `InsertUpdate` | Grava o resumo em `resumo_mensal_qualidade_ar`, com chave em `(ano, mes)` |
 
-## Orquestracao (wf_orquestracao_qualidade_ar)
+## Orquestração (wf_air_quality_orchestration)
 
 ```text
-START -> Ingestao e tratamento -> Consolidacao de indicadores -> Processo concluido
+START -> Ingestion and treatment -> Indicator consolidation -> Process completed
 ```
 
-O segundo hop so e seguido se a pipeline de ingestao terminar com sucesso, o
+O segundo hop só é seguido se a pipeline de ingestão terminar com sucesso, o
 que evita consolidar indicadores a partir de uma carga incompleta.
 
 ## Dashboard
 
-O dashboard e uma pagina HTML estatica (`dashboard/index.html`) que le
-`dashboard/data/indicadores.json`. Esse arquivo e gerado pelo script
-`scripts/exportar_dashboard.sh`, que consulta as visoes `vw_indicadores_gerais`
+O dashboard é uma página HTML estática (`dashboard/index.html`) que lê
+`dashboard/data/indicadores.json`. Esse arquivo é gerado pelo script
+`scripts/export_dashboard.sh`, que consulta as visões `vw_indicadores_gerais`
 e `vw_ranking_piores_dias` e as tabelas de resumo diretamente no PostgreSQL. A
-biblioteca de graficos (Chart.js) fica vendorizada em `dashboard/vendor`, para
-que a apresentacao funcione sem depender de internet.
+biblioteca de gráficos (Chart.js) fica vendorizada em `dashboard/vendor`, para
+que a apresentação funcione sem depender de internet.
 
-## Reexecucao e idempotencia
+## Reexecução e idempotência
 
-A pergunta obrigatoria do trabalho final e: o que acontece se o pipeline for
+A pergunta obrigatória do trabalho final é: o que acontece se o pipeline for
 executado novamente com a mesma fonte de dados? No AeroTrack:
 
-- `leituras_qualidade_ar` tem uma restricao `UNIQUE` em `data_hora`, e a carga
-  usa `Insert/Update`: uma nova execucao atualiza os registros existentes em
+- `leituras_qualidade_ar` tem uma restrição `UNIQUE` em `data_hora`, e a carga
+  usa `Insert/Update`: uma nova execução atualiza os registros existentes em
   vez de duplicar.
 - `resumo_diario_qualidade_ar` e `resumo_mensal_qualidade_ar` seguem a mesma
-  logica, com chave em `data_referencia` e em `(ano, mes)`.
-- `leituras_rejeitadas` e truncada e recarregada por completo a cada execucao,
-  pois representa o log da ultima carga, nao um historico acumulado.
+  lógica, com chave em `data_referencia` e em `(ano, mes)`.
+- `leituras_rejeitadas` é truncada e recarregada por completo a cada execução,
+  pois representa o log da última carga, não um histórico acumulado.
 
-Essa estrategia foi validada executando o workflow duas vezes seguidas sobre o
+Essa estratégia foi validada executando o workflow duas vezes seguidas sobre o
 mesmo arquivo fonte e conferindo que a contagem de linhas em
-`leituras_qualidade_ar` permaneceu identica (ver
+`leituras_qualidade_ar` permaneceu idêntica (ver
 [docs/evidencias-testes.md](evidencias-testes.md)).
