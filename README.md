@@ -38,10 +38,12 @@ orchestration and indicator consolidation.
 
 Public dataset &rarr; Treatment &rarr; Classification rules &rarr; Database &rarr; Consolidation &rarr; Dashboard
 
-> Note: this README, the code, the SQL and the dashboard are in English.
-> The [`docs/`](docs/) folder (architecture, database contract, evidence
-> report and presentation) is written in Portuguese, since this project was
-> submitted for a Brazilian, Portuguese-taught course.
+> Note: this README, the code, the SQL and the dashboard are in English. The
+> supporting documentation lives in [`docs/en/`](docs/en/) and
+> [`docs/pt/`](docs/pt/) (same files, both languages). The development
+> report and the presentation in [`docs/evidencias/`](docs/evidencias/) are
+> Portuguese only, since this project was submitted for a Brazilian,
+> Portuguese-taught course.
 
 ---
 
@@ -89,7 +91,7 @@ Public dataset (UCI Air Quality)
 Both pipelines are orchestrated by the workflow
 [`wf_air_quality_orchestration.hwf`](hop/workflows/wf_air_quality_orchestration.hwf).
 A detailed, diagram-illustrated walkthrough of each step is in
-[docs/arquitetura.md](docs/arquitetura.md) (Portuguese).
+[docs/en/arquitetura.md](docs/en/arquitetura.md) ([pt](docs/pt/arquitetura.md)).
 
 ---
 
@@ -105,10 +107,11 @@ A detailed, diagram-illustrated walkthrough of each step is in
 | `vw_ranking_piores_dias` | View with the 10 days of worst conditions |
 
 Table and column names stay in Portuguese to match the pipelines and the
-Portuguese report/presentation in `docs/`. The unique key on `data_hora` and
-the Insert/Update strategy guarantee that a new run of the process updates
-existing records instead of duplicating rows. Full column documentation is in
-[docs/contrato-banco.md](docs/contrato-banco.md) (Portuguese).
+Portuguese report/presentation in `docs/evidencias/`. The unique key on
+`data_hora` and the Insert/Update strategy guarantee that a new run of the
+process updates existing records instead of duplicating rows. Full column
+documentation is in
+[docs/en/contrato-banco.md](docs/en/contrato-banco.md) ([pt](docs/pt/contrato-banco.md)).
 
 ---
 
@@ -150,7 +153,7 @@ Open `http://localhost:8000` in your browser.
 
 A single script that runs every step above in order is available at
 [`scripts/replicate.sh`](scripts/replicate.sh); see the step-by-step manual in
-[docs/manual-replicacao.md](docs/manual-replicacao.md) (Portuguese).
+[docs/en/manual-replicacao.md](docs/en/manual-replicacao.md) ([pt](docs/pt/manual-replicacao.md)).
 
 ---
 
@@ -196,22 +199,25 @@ AeroTrack/
 ├── scripts/
 │   ├── export_dashboard.sh
 │   └── replicate.sh
-├── docs/                              (Portuguese)
+├── docs/
 │   ├── assets/
-│   ├── evidencias/
+│   ├── evidencias/                    (Portuguese only: report and slides)
 │   │   ├── capturas/
 │   │   ├── logs/
 │   │   ├── relatorio-desenvolvimento-aerotrack.pdf
 │   │   ├── relatorio-desenvolvimento-aerotrack.tex
 │   │   ├── AeroTrack-Apresentacao-Modulo6.pptx
 │   │   └── AeroTrack-Apresentacao-Modulo6.pdf
-│   ├── arquitetura.md
-│   ├── contrato-banco.md
-│   ├── evidencias-testes.md
-│   ├── registro-ajustes.md
-│   ├── contribuicoes.md
-│   ├── fluxo-git.md
-│   └── manual-replicacao.md
+│   ├── en/                            (English documentation)
+│   │   ├── arquitetura.md
+│   │   ├── contrato-banco.md
+│   │   ├── evidencias-testes.md
+│   │   ├── registro-ajustes.md
+│   │   ├── contribuicoes.md
+│   │   ├── fluxo-git.md
+│   │   └── manual-replicacao.md
+│   └── pt/                            (Portuguese documentation, same files)
+│       └── ... (same file names as docs/en/)
 └── README.md
 ```
 
@@ -221,18 +227,19 @@ AeroTrack/
 
 The test script covers running the workflow from a clean database, checking
 the row counts, rerunning it to confirm there is no duplication, and
-generating the dashboard. Everything below lives in `docs/` and is written in
-Portuguese, matching the report and presentation delivered for the course.
+generating the dashboard. The report and presentation are Portuguese only;
+every other document below is available in both
+[English](docs/en/) and [Portuguese](docs/pt/).
 
 | Document | Content |
 | --- | --- |
-| [Evidência e testes](docs/evidencias-testes.md) | Scenarios, expected results and screenshot names |
-| [Relatório de desenvolvimento](docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf) | Architecture, pipelines, treatment, database, indicators and validation |
-| [Apresentação](docs/evidencias/AeroTrack-Apresentacao-Modulo6.pdf) | Slides for the 10-minute presentation |
-| [Manual de replicação](docs/manual-replicacao.md) | Step-by-step guide to reproduce the whole project from scratch |
-| [Registro de ajustes](docs/registro-ajustes.md) | Technical decisions and adjustments made during development |
-| [Plano de contribuições](docs/contribuicoes.md) | Team responsibilities |
-| [Fluxo Git](docs/fluxo-git.md) | Branch, commit and merge-request rules |
+| [Evidence and tests](docs/en/evidencias-testes.md) ([pt](docs/pt/evidencias-testes.md)) | Scenarios, expected results and screenshot names |
+| [Relatório de desenvolvimento](docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf) (pt) | Architecture, pipelines, treatment, database, indicators and validation |
+| [Apresentação](docs/evidencias/AeroTrack-Apresentacao-Modulo6.pdf) (pt) | Slides for the 10-minute presentation |
+| [Replication manual](docs/en/manual-replicacao.md) ([pt](docs/pt/manual-replicacao.md)) | Step-by-step guide to reproduce the whole project from scratch |
+| [Adjustment log](docs/en/registro-ajustes.md) ([pt](docs/pt/registro-ajustes.md)) | Technical decisions and adjustments made during development |
+| [Contribution plan](docs/en/contribuicoes.md) ([pt](docs/pt/contribuicoes.md)) | Team responsibilities |
+| [Git flow](docs/en/fluxo-git.md) ([pt](docs/pt/fluxo-git.md)) | Branch, commit and merge-request rules |
 
 ---
 
@@ -267,7 +274,7 @@ of the latest load rather than an accumulating history.
 | Fernanda de Oliveira da Costa | [@nanda-costa](https://github.com/nanda-costa) | Data treatment validation and database contract review |
 | Pedro Henrique Oliveira Dias | [@pedroddias-oss](https://github.com/pedroddias-oss) | Rerun/idempotency tests, evidence and final presentation |
 
-Full detail (in Portuguese) is in [docs/contribuicoes.md](docs/contribuicoes.md).
+Full detail is in [docs/en/contribuicoes.md](docs/en/contribuicoes.md) ([pt](docs/pt/contribuicoes.md)).
 
 ---
 
