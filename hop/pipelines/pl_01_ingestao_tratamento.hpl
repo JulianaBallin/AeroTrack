@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <info>
+    <pipeline_version/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>pl_01_ingestao_tratamento</name>
+    <name_sync_with_filename>N</name_sync_with_filename>
+    <description>Le o dataset bruto de qualidade do ar, remove linhas vazias, converte tipos, trata valores ausentes (-200), aplica regras de classificacao e grava as leituras tratadas e as rejeitadas no banco de dados.</description>
+    <extended_description/>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/08/16 00:00:00.000</created_date>
+    <modified_date>2026/08/16 00:00:00.000</modified_date>
+  </info>
+
+  <transform>
+    <type>CSVInput</type>
+    <name>Ler leituras brutas</name>
+    <filename>${PROJECT_HOME}/../data/raw/AirQualityUCI.csv</filename>
+    <include_filename>N</include_filename>
+    <rownum_field/>
+    <header>Y</header>
+    <separator>;</separator>
+    <enclosure/>
+    <buffer_size>50000</buffer_size>
+    <lazy_conversion>N</lazy_conversion>
+    <add_filename_result>N</add_filename_result>
+    <parallel>N</parallel>
+    <encoding>UTF-8</encoding>
+    <newline_possible>N</newline_possible>
+    <schemaDefinition/>
+    <ignoreFields>N</ignoreFields>
+    <fields>
+      <field><name>data_texto</name><length>-1</length><type>String</type><format/><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>hora_texto</name><length>-1</length><type>String</type><format/><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>co_gt_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>pt08_s1_co_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>nmhc_gt_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>c6h6_gt_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>pt08_s2_nmhc_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>nox_gt_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>pt08_s3_nox_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>no2_gt_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>pt08_s4_no2_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>pt08_s5_o3_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>temperatura_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>umidade_relativa_raw</name><length>-1</length><type>Number</type><format>#.##</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>umidade_absoluta_raw</name><length>-1</length><type>Number</type><format>#.####</format><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>coluna_extra_1</name><length>-1</length><type>String</type><format/><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+      <field><name>coluna_extra_2</name><length>-1</length><type>String</type><format/><trim_type>both</trim_type><precision>-1</precision><currency>$</currency><decimal>,</decimal><group>.</group></field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>64</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>FilterRows</type>
+    <name>Remover linhas vazias</name>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <operator>-</operator>
+        <leftvalue>data_texto</leftvalue>
+        <function>IS NOT NULL</function>
+        <conditions></conditions>
+      </condition>
+    </compare>
+    <send_true_to>Montar texto de data e hora</send_true_to>
+    <send_false_to>Descartar linha vazia</send_false_to>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>256</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>Dummy</type>
+    <name>Descartar linha vazia</name>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>256</xloc><yloc>176</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>Formula</type>
+    <name>Montar texto de data e hora</name>
+    <formulas>
+      <formula>
+        <field_name>data_hora_texto</field_name>
+        <formula>CONCATENATE([data_texto], " ", SUBSTITUTE([hora_texto], ".", ":"))</formula>
+        <value_type>2</value_type>
+        <value_length>25</value_length>
+        <value_precision>-1</value_precision>
+        <set_na>N</set_na>
+      </formula>
+    </formulas>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>448</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>NullIf</type>
+    <name>Tratar valores ausentes (-200)</name>
+    <fields>
+      <field><name>co_gt_raw</name><value>-200</value></field>
+      <field><name>pt08_s1_co_raw</name><value>-200</value></field>
+      <field><name>nmhc_gt_raw</name><value>-200</value></field>
+      <field><name>c6h6_gt_raw</name><value>-200</value></field>
+      <field><name>pt08_s2_nmhc_raw</name><value>-200</value></field>
+      <field><name>nox_gt_raw</name><value>-200</value></field>
+      <field><name>pt08_s3_nox_raw</name><value>-200</value></field>
+      <field><name>no2_gt_raw</name><value>-200</value></field>
+      <field><name>pt08_s4_no2_raw</name><value>-200</value></field>
+      <field><name>pt08_s5_o3_raw</name><value>-200</value></field>
+      <field><name>temperatura_raw</name><value>-200</value></field>
+      <field><name>umidade_relativa_raw</name><value>-200</value></field>
+      <field><name>umidade_absoluta_raw</name><value>-200</value></field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>640</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>SelectValues</type>
+    <name>Selecionar e renomear campos</name>
+    <fields>
+      <field><name>co_gt_raw</name><rename>co_gt</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>pt08_s1_co_raw</name><rename>pt08_s1_co</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>nmhc_gt_raw</name><rename>nmhc_gt</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>c6h6_gt_raw</name><rename>c6h6_gt</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>pt08_s2_nmhc_raw</name><rename>pt08_s2_nmhc</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>nox_gt_raw</name><rename>nox_gt</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>pt08_s3_nox_raw</name><rename>pt08_s3_nox</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>no2_gt_raw</name><rename>no2_gt</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>pt08_s4_no2_raw</name><rename>pt08_s4_no2</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>pt08_s5_o3_raw</name><rename>pt08_s5_o3</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>temperatura_raw</name><rename>temperatura</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>umidade_relativa_raw</name><rename>umidade_relativa</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>umidade_absoluta_raw</name><rename>umidade_absoluta</rename><length>-2</length><precision>-2</precision></field>
+      <field><name>data_hora_texto</name><rename/><length>-2</length><precision>-2</precision></field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>832</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>SelectValues</type>
+    <name>Converter texto para data e hora</name>
+    <fields>
+      <select_unspecified>N</select_unspecified>
+      <meta>
+        <name>data_hora_texto</name>
+        <rename>data_hora</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <conversion_mask>dd/MM/yyyy HH:mm:ss</conversion_mask>
+        <date_format_lenient>N</date_format_lenient>
+        <lenient_string_to_number>N</lenient_string_to_number>
+      </meta>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1024</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>Calculator</type>
+    <name>Calcular partes da data</name>
+    <calculation>
+      <field_name>ano</field_name>
+      <calc_type>YEAR_OF_DATE</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Integer</value_type>
+      <value_length>4</value_length>
+      <value_precision>0</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <calculation>
+      <field_name>mes</field_name>
+      <calc_type>MONTH_OF_DATE</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Integer</value_type>
+      <value_length>2</value_length>
+      <value_precision>0</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <calculation>
+      <field_name>dia</field_name>
+      <calc_type>DAY_OF_MONTH</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Integer</value_type>
+      <value_length>2</value_length>
+      <value_precision>0</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <calculation>
+      <field_name>hora</field_name>
+      <calc_type>HOUR_OF_DAY</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Integer</value_type>
+      <value_length>2</value_length>
+      <value_precision>0</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <calculation>
+      <field_name>dia_semana_num</field_name>
+      <calc_type>DAY_OF_WEEK</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Integer</value_type>
+      <value_length>1</value_length>
+      <value_precision>0</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <calculation>
+      <field_name>data_referencia</field_name>
+      <calc_type>REMOVE_TIME_FROM_DATE</calc_type>
+      <field_a>data_hora</field_a>
+      <value_type>Date</value_type>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <remove>N</remove>
+    </calculation>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1216</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>ValueMapper</type>
+    <name>Definir nome do dia da semana</name>
+    <field_to_use>dia_semana_num</field_to_use>
+    <target_field>dia_semana</target_field>
+    <non_match_default>INDEFINIDO</non_match_default>
+    <target_type>String</target_type>
+    <fields>
+      <field><source_value>1</source_value><target_value>DOMINGO</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>2</source_value><target_value>SEGUNDA-FEIRA</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>3</source_value><target_value>TERCA-FEIRA</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>4</source_value><target_value>QUARTA-FEIRA</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>5</source_value><target_value>QUINTA-FEIRA</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>6</source_value><target_value>SEXTA-FEIRA</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+      <field><source_value>7</source_value><target_value>SABADO</target_value><empty_string_equals_null>Y</empty_string_equals_null></field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1408</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>NumberRange</type>
+    <name>Classificar turno do dia</name>
+    <inputField>hora</inputField>
+    <outputField>turno</outputField>
+    <fallBackValue>INDEFINIDO</fallBackValue>
+    <rules>
+      <rule><lower_bound>-1</lower_bound><upper_bound>5</upper_bound><value>MADRUGADA</value></rule>
+      <rule><lower_bound>5</lower_bound><upper_bound>11</upper_bound><value>MANHA</value></rule>
+      <rule><lower_bound>11</lower_bound><upper_bound>17</upper_bound><value>TARDE</value></rule>
+      <rule><lower_bound>17</lower_bound><upper_bound>23</upper_bound><value>NOITE</value></rule>
+    </rules>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1600</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>NumberRange</type>
+    <name>Classificar nivel de CO</name>
+    <inputField>co_gt</inputField>
+    <outputField>co_nivel</outputField>
+    <fallBackValue>SEM_DADO</fallBackValue>
+    <rules>
+      <rule><lower_bound/><upper_bound>2</upper_bound><value>BOM</value></rule>
+      <rule><lower_bound>2</lower_bound><upper_bound>6</upper_bound><value>MODERADO</value></rule>
+      <rule><lower_bound>6</lower_bound><upper_bound>100</upper_bound><value>CRITICO</value></rule>
+    </rules>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1792</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>NumberRange</type>
+    <name>Classificar nivel de NO2</name>
+    <inputField>no2_gt</inputField>
+    <outputField>no2_nivel</outputField>
+    <fallBackValue>SEM_DADO</fallBackValue>
+    <rules>
+      <rule><lower_bound/><upper_bound>60</upper_bound><value>BOM</value></rule>
+      <rule><lower_bound>60</lower_bound><upper_bound>120</upper_bound><value>MODERADO</value></rule>
+      <rule><lower_bound>120</lower_bound><upper_bound>1000</upper_bound><value>CRITICO</value></rule>
+    </rules>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>1984</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>Janino</type>
+    <name>Calcular indicadores de qualidade</name>
+    <formula>
+      <field_name>leitura_valida</field_name>
+      <formula_string>(co_gt != null || nox_gt != null || no2_gt != null) ? "S" : "N"</formula_string>
+      <value_type>String</value_type>
+      <value_length>1</value_length>
+      <value_precision>-1</value_precision>
+    </formula>
+    <formula>
+      <field_name>condicao_critica</field_name>
+      <formula_string>("CRITICO".equals(co_nivel) || "CRITICO".equals(no2_nivel)) ? "SIM" : "NAO"</formula_string>
+      <value_type>String</value_type>
+      <value_length>3</value_length>
+      <value_precision>-1</value_precision>
+    </formula>
+    <formula>
+      <field_name>motivo_rejeicao</field_name>
+      <formula_string>(co_gt == null &amp;&amp; nox_gt == null &amp;&amp; no2_gt == null) ? "Sem leitura de poluentes de referencia (CO, NOx e NO2 ausentes)" : ""</formula_string>
+      <value_type>String</value_type>
+      <value_length>120</value_length>
+      <value_precision>-1</value_precision>
+    </formula>
+    <java_target_version>11</java_target_version>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>2176</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>FilterRows</type>
+    <name>Separar leituras validas</name>
+    <compare>
+      <condition>
+        <negated>N</negated>
+        <operator>-</operator>
+        <leftvalue>leitura_valida</leftvalue>
+        <function>=</function>
+        <value>
+          <name>constante</name>
+          <type>String</type>
+          <text>S</text>
+          <length>-1</length>
+          <precision>-1</precision>
+          <isnull>N</isnull>
+        </value>
+        <conditions></conditions>
+      </condition>
+    </compare>
+    <send_true_to>Gravar leitura tratada</send_true_to>
+    <send_false_to>Gravar leitura rejeitada</send_false_to>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>2368</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>InsertUpdate</type>
+    <name>Gravar leitura tratada</name>
+    <lookup>
+      <key><name>data_hora</name><field>data_hora</field><condition>=</condition></key>
+      <value><name>data_hora</name><rename>data_hora</rename><update>N</update></value>
+      <value><name>data_referencia</name><rename>data_referencia</rename><update>Y</update></value>
+      <value><name>ano</name><rename>ano</rename><update>Y</update></value>
+      <value><name>mes</name><rename>mes</rename><update>Y</update></value>
+      <value><name>dia</name><rename>dia</rename><update>Y</update></value>
+      <value><name>hora</name><rename>hora</rename><update>Y</update></value>
+      <value><name>dia_semana</name><rename>dia_semana</rename><update>Y</update></value>
+      <value><name>turno</name><rename>turno</rename><update>Y</update></value>
+      <value><name>co_gt</name><rename>co_gt</rename><update>Y</update></value>
+      <value><name>pt08_s1_co</name><rename>pt08_s1_co</rename><update>Y</update></value>
+      <value><name>nmhc_gt</name><rename>nmhc_gt</rename><update>Y</update></value>
+      <value><name>c6h6_gt</name><rename>c6h6_gt</rename><update>Y</update></value>
+      <value><name>pt08_s2_nmhc</name><rename>pt08_s2_nmhc</rename><update>Y</update></value>
+      <value><name>nox_gt</name><rename>nox_gt</rename><update>Y</update></value>
+      <value><name>pt08_s3_nox</name><rename>pt08_s3_nox</rename><update>Y</update></value>
+      <value><name>no2_gt</name><rename>no2_gt</rename><update>Y</update></value>
+      <value><name>pt08_s4_no2</name><rename>pt08_s4_no2</rename><update>Y</update></value>
+      <value><name>pt08_s5_o3</name><rename>pt08_s5_o3</rename><update>Y</update></value>
+      <value><name>temperatura</name><rename>temperatura</rename><update>Y</update></value>
+      <value><name>umidade_relativa</name><rename>umidade_relativa</rename><update>Y</update></value>
+      <value><name>umidade_absoluta</name><rename>umidade_absoluta</rename><update>Y</update></value>
+      <value><name>co_nivel</name><rename>co_nivel</rename><update>Y</update></value>
+      <value><name>no2_nivel</name><rename>no2_nivel</rename><update>Y</update></value>
+      <value><name>condicao_critica</name><rename>condicao_critica</rename><update>Y</update></value>
+      <schema/>
+      <table>leituras_qualidade_ar</table>
+    </lookup>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>2560</xloc><yloc>16</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>TableOutput</type>
+    <name>Gravar leitura rejeitada</name>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <schema/>
+    <table>leituras_rejeitadas</table>
+    <commit>100</commit>
+    <truncate>Y</truncate>
+    <only_when_have_rows>N</only_when_have_rows>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>Y</use_batch>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>N</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>N</tablename_in_table>
+    <return_keys>N</return_keys>
+    <specify_fields>Y</specify_fields>
+    <auto_update_table_structure>N</auto_update_table_structure>
+    <always_drop_and_recreate>N</always_drop_and_recreate>
+    <add_columns>N</add_columns>
+    <drop_columns>N</drop_columns>
+    <change_column_types>N</change_column_types>
+    <fields>
+      <field><stream_name>motivo_rejeicao</stream_name><column_name>motivo</column_name></field>
+      <field><stream_name>co_gt</stream_name><column_name>co_gt</column_name></field>
+      <field><stream_name>nox_gt</stream_name><column_name>nox_gt</column_name></field>
+      <field><stream_name>no2_gt</stream_name><column_name>no2_gt</column_name></field>
+    </fields>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>2560</xloc><yloc>176</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <order>
+    <hop><from>Ler leituras brutas</from><to>Remover linhas vazias</to><enabled>Y</enabled></hop>
+    <hop><from>Remover linhas vazias</from><to>Montar texto de data e hora</to><enabled>Y</enabled></hop>
+    <hop><from>Remover linhas vazias</from><to>Descartar linha vazia</to><enabled>Y</enabled></hop>
+    <hop><from>Montar texto de data e hora</from><to>Tratar valores ausentes (-200)</to><enabled>Y</enabled></hop>
+    <hop><from>Tratar valores ausentes (-200)</from><to>Selecionar e renomear campos</to><enabled>Y</enabled></hop>
+    <hop><from>Selecionar e renomear campos</from><to>Converter texto para data e hora</to><enabled>Y</enabled></hop>
+    <hop><from>Converter texto para data e hora</from><to>Calcular partes da data</to><enabled>Y</enabled></hop>
+    <hop><from>Calcular partes da data</from><to>Definir nome do dia da semana</to><enabled>Y</enabled></hop>
+    <hop><from>Definir nome do dia da semana</from><to>Classificar turno do dia</to><enabled>Y</enabled></hop>
+    <hop><from>Classificar turno do dia</from><to>Classificar nivel de CO</to><enabled>Y</enabled></hop>
+    <hop><from>Classificar nivel de CO</from><to>Classificar nivel de NO2</to><enabled>Y</enabled></hop>
+    <hop><from>Classificar nivel de NO2</from><to>Calcular indicadores de qualidade</to><enabled>Y</enabled></hop>
+    <hop><from>Calcular indicadores de qualidade</from><to>Separar leituras validas</to><enabled>Y</enabled></hop>
+    <hop><from>Separar leituras validas</from><to>Gravar leitura tratada</to><enabled>Y</enabled></hop>
+    <hop><from>Separar leituras validas</from><to>Gravar leitura rejeitada</to><enabled>Y</enabled></hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>

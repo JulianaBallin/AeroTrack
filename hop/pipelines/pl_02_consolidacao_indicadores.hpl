@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <info>
+    <pipeline_version/>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters/>
+    <name>pl_02_consolidacao_indicadores</name>
+    <name_sync_with_filename>N</name_sync_with_filename>
+    <description>Le as leituras tratadas no banco de dados, calcula os indicadores diarios e mensais e grava os resumos usados pelo dashboard.</description>
+    <extended_description/>
+    <created_user>-</created_user>
+    <modified_user>-</modified_user>
+    <created_date>2026/08/17 00:00:00.000</created_date>
+    <modified_date>2026/08/17 00:00:00.000</modified_date>
+  </info>
+
+  <transform>
+    <type>TableInput</type>
+    <name>Calcular resumo diario</name>
+    <sql>SELECT
+    data_referencia,
+    COUNT(*) AS total_leituras,
+    0 AS registros_invalidos,
+    ROUND(AVG(co_gt)::numeric, 2) AS co_medio,
+    ROUND(MAX(co_gt)::numeric, 2) AS co_maximo,
+    ROUND(AVG(no2_gt)::numeric, 2) AS no2_medio,
+    ROUND(MAX(no2_gt)::numeric, 2) AS no2_maximo,
+    ROUND(AVG(nox_gt)::numeric, 2) AS nox_medio,
+    ROUND(AVG(c6h6_gt)::numeric, 2) AS benzeno_medio,
+    ROUND(AVG(temperatura)::numeric, 2) AS temperatura_media,
+    ROUND(AVG(umidade_relativa)::numeric, 2) AS umidade_media,
+    SUM(CASE WHEN condicao_critica = 'SIM' THEN 1 ELSE 0 END) AS horas_condicao_critica,
+    ROUND(100.0 * SUM(CASE WHEN condicao_critica = 'SIM' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS percentual_horas_criticas
+FROM leituras_qualidade_ar
+GROUP BY data_referencia
+ORDER BY data_referencia;</sql>
+    <limit>0</limit>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <lookup/>
+    <sql_from_file/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>64</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>InsertUpdate</type>
+    <name>Gravar resumo diario</name>
+    <lookup>
+      <key><name>data_referencia</name><field>data_referencia</field><condition>=</condition></key>
+      <value><name>data_referencia</name><rename>data_referencia</rename><update>N</update></value>
+      <value><name>total_leituras</name><rename>total_leituras</rename><update>Y</update></value>
+      <value><name>registros_invalidos</name><rename>registros_invalidos</rename><update>Y</update></value>
+      <value><name>co_medio</name><rename>co_medio</rename><update>Y</update></value>
+      <value><name>co_maximo</name><rename>co_maximo</rename><update>Y</update></value>
+      <value><name>no2_medio</name><rename>no2_medio</rename><update>Y</update></value>
+      <value><name>no2_maximo</name><rename>no2_maximo</rename><update>Y</update></value>
+      <value><name>nox_medio</name><rename>nox_medio</rename><update>Y</update></value>
+      <value><name>benzeno_medio</name><rename>benzeno_medio</rename><update>Y</update></value>
+      <value><name>temperatura_media</name><rename>temperatura_media</rename><update>Y</update></value>
+      <value><name>umidade_media</name><rename>umidade_media</rename><update>Y</update></value>
+      <value><name>horas_condicao_critica</name><rename>horas_condicao_critica</rename><update>Y</update></value>
+      <value><name>percentual_horas_criticas</name><rename>percentual_horas_criticas</rename><update>Y</update></value>
+      <schema/>
+      <table>resumo_diario_qualidade_ar</table>
+    </lookup>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>288</xloc><yloc>64</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>TableInput</type>
+    <name>Calcular resumo mensal</name>
+    <sql>SELECT
+    ano,
+    mes,
+    COUNT(*) AS total_leituras,
+    ROUND(AVG(co_gt)::numeric, 2) AS co_medio,
+    ROUND(AVG(no2_gt)::numeric, 2) AS no2_medio,
+    ROUND(AVG(nox_gt)::numeric, 2) AS nox_medio,
+    ROUND(AVG(temperatura)::numeric, 2) AS temperatura_media,
+    ROUND(AVG(umidade_relativa)::numeric, 2) AS umidade_media,
+    SUM(CASE WHEN condicao_critica = 'SIM' THEN 1 ELSE 0 END) AS horas_condicao_critica,
+    ROUND(100.0 * SUM(CASE WHEN condicao_critica = 'SIM' THEN 1 ELSE 0 END) / NULLIF(COUNT(*), 0), 2) AS percentual_horas_criticas
+FROM leituras_qualidade_ar
+GROUP BY ano, mes
+ORDER BY ano, mes;</sql>
+    <limit>0</limit>
+    <execute_each_row>N</execute_each_row>
+    <variables_active>N</variables_active>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <lookup/>
+    <sql_from_file/>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>64</xloc><yloc>192</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <transform>
+    <type>InsertUpdate</type>
+    <name>Gravar resumo mensal</name>
+    <lookup>
+      <key><name>ano</name><field>ano</field><condition>=</condition></key>
+      <key><name>mes</name><field>mes</field><condition>=</condition></key>
+      <value><name>ano</name><rename>ano</rename><update>N</update></value>
+      <value><name>mes</name><rename>mes</rename><update>N</update></value>
+      <value><name>total_leituras</name><rename>total_leituras</rename><update>Y</update></value>
+      <value><name>co_medio</name><rename>co_medio</rename><update>Y</update></value>
+      <value><name>no2_medio</name><rename>no2_medio</rename><update>Y</update></value>
+      <value><name>nox_medio</name><rename>nox_medio</rename><update>Y</update></value>
+      <value><name>temperatura_media</name><rename>temperatura_media</rename><update>Y</update></value>
+      <value><name>umidade_media</name><rename>umidade_media</rename><update>Y</update></value>
+      <value><name>horas_condicao_critica</name><rename>horas_condicao_critica</rename><update>Y</update></value>
+      <value><name>percentual_horas_criticas</name><rename>percentual_horas_criticas</rename><update>Y</update></value>
+      <schema/>
+      <table>resumo_mensal_qualidade_ar</table>
+    </lookup>
+    <commit>100</commit>
+    <update_bypassed>N</update_bypassed>
+    <connection>PostgreSQL_AeroTrack</connection>
+    <distribute>Y</distribute>
+    <copies>1</copies>
+    <GUI><xloc>288</xloc><yloc>192</yloc></GUI>
+    <partitioning><method>none</method><schema_name/></partitioning>
+    <attributes/>
+  </transform>
+
+  <order>
+    <hop><from>Calcular resumo diario</from><to>Gravar resumo diario</to><enabled>Y</enabled></hop>
+    <hop><from>Calcular resumo mensal</from><to>Gravar resumo mensal</to><enabled>Y</enabled></hop>
+  </order>
+  <notepads/>
+  <attributes/>
+  <transform_error_handling/>
+</pipeline>
