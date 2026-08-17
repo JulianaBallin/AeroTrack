@@ -301,8 +301,8 @@
     <fallBackValue>SEM_DADO</fallBackValue>
     <rules>
       <rule><lower_bound/><upper_bound>2</upper_bound><value>BOM</value></rule>
-      <rule><lower_bound>2</lower_bound><upper_bound>6</upper_bound><value>MODERADO</value></rule>
-      <rule><lower_bound>6</lower_bound><upper_bound>100</upper_bound><value>CRITICO</value></rule>
+      <rule><lower_bound>2</lower_bound><upper_bound>4.5</upper_bound><value>MODERADO</value></rule>
+      <rule><lower_bound>4.5</lower_bound><upper_bound>100</upper_bound><value>CRITICO</value></rule>
     </rules>
     <distribute>Y</distribute>
     <copies>1</copies>
@@ -318,9 +318,9 @@
     <outputField>no2_nivel</outputField>
     <fallBackValue>SEM_DADO</fallBackValue>
     <rules>
-      <rule><lower_bound/><upper_bound>60</upper_bound><value>BOM</value></rule>
-      <rule><lower_bound>60</lower_bound><upper_bound>120</upper_bound><value>MODERADO</value></rule>
-      <rule><lower_bound>120</lower_bound><upper_bound>1000</upper_bound><value>CRITICO</value></rule>
+      <rule><lower_bound/><upper_bound>80</upper_bound><value>BOM</value></rule>
+      <rule><lower_bound>80</lower_bound><upper_bound>180</upper_bound><value>MODERADO</value></rule>
+      <rule><lower_bound>180</lower_bound><upper_bound>1000</upper_bound><value>CRITICO</value></rule>
     </rules>
     <distribute>Y</distribute>
     <copies>1</copies>
