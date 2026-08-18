@@ -7,9 +7,9 @@
 <script>
 (function () {
   try {
-    var saved = localStorage.getItem('aerotrack-theme');
-    if (saved === 'light' || saved === 'dark') {
-      document.documentElement.setAttribute('data-theme', saved);
+    var theme = localStorage.getItem('aerotrack-theme');
+    if (theme === 'light' || theme === 'dark') {
+      document.documentElement.setAttribute('data-theme', theme);
     }
   } catch (e) {}
 })();
@@ -124,6 +124,7 @@
   }
   .icon-btn { width: 38px; height: 38px; justify-content: center; padding: 0; }
   .icon-btn svg { width: 18px; height: 18px; }
+  .lang-btn { width: auto; padding: 0 12px; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.03em; }
   .pill-btn { padding: 8px 14px; font-size: 0.78rem; font-weight: 600; text-decoration: none; }
   .icon-btn:hover, .pill-btn:hover { transform: translateY(-1px); color: var(--series-1); }
   .icon-btn .moon { display: none; }
@@ -275,13 +276,14 @@
     </div>
     <div>
       <h1>AeroTrack</h1>
-      <p>Air quality monitoring &middot; hourly readings processed by Apache Hop</p>
+      <p id="tagline"></p>
     </div>
   </div>
   <div class="head-right">
     <div class="meta" id="generatedAt"></div>
-    <a class="pill-btn" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Full report (PDF)</a>
-    <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark / light theme" title="Toggle dark / light theme">
+    <a class="pill-btn" id="headerReportLink" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener"></a>
+    <button class="icon-btn lang-btn" id="langToggle" type="button"></button>
+    <button class="icon-btn" id="themeToggle" type="button">
       <svg class="sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
       <svg class="moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
     </button>
@@ -291,29 +293,29 @@
 <main>
   <div class="filters">
     <div class="group">
-      <label for="filterYear">Year</label>
+      <label for="filterYear" id="lblYear"></label>
       <select id="filterYear"></select>
     </div>
     <div class="group">
-      <label for="filterMetric">Density map metric</label>
+      <label for="filterMetric" id="lblMetric"></label>
       <select id="filterMetric">
-        <option value="percentual_horas_criticas">% critical hours</option>
-        <option value="co_medio">Avg. CO (mg/m3)</option>
-        <option value="no2_medio">Avg. NO2 (ug/m3)</option>
+        <option value="percentual_horas_criticas" id="optMetricPct"></option>
+        <option value="co_medio" id="optMetricCo"></option>
+        <option value="no2_medio" id="optMetricNo2"></option>
       </select>
     </div>
     <div class="spacer"></div>
     <div class="group">
-      <label for="rankingSearch">Search ranking</label>
-      <input type="search" id="rankingSearch" placeholder="e.g. 2004-10" />
+      <label for="rankingSearch" id="lblSearch"></label>
+      <input type="search" id="rankingSearch" />
     </div>
   </div>
 
   <div class="tiles" id="tiles"></div>
 
   <section class="panel">
-    <h2>Monthly trend</h2>
-    <p class="desc">Monthly average of CO and NO2 across treated readings (each pollutant on its own scale). Filtered by the year selector above.</p>
+    <h2 id="h2Trend"></h2>
+    <p class="desc" id="pTrend"></p>
     <div class="chart-row">
       <div class="chart-box"><canvas id="chartCoMonthly"></canvas></div>
       <div class="chart-box"><canvas id="chartNo2Monthly"></canvas></div>
@@ -323,17 +325,17 @@
   <section class="panel">
     <div class="panel-head">
       <div>
-        <h2>Monthly density map</h2>
-        <p class="desc">Heat map of every month on record, colored from good (green) to critical (red) for the selected metric.</p>
+        <h2 id="h2Density"></h2>
+        <p class="desc" id="pDensity"></p>
       </div>
-      <div class="heat-legend"><span>Good</span><span class="bar"></span><span>Critical</span></div>
+      <div class="heat-legend"><span id="legendGood"></span><span class="bar"></span><span id="legendCritical"></span></div>
     </div>
     <div class="heatmap" id="heatmapGrid"></div>
   </section>
 
   <section class="panel">
-    <h2>Reading classification</h2>
-    <p class="desc">Distribution of readings by CO and NO2 level (analytical classification defined for this project).</p>
+    <h2 id="h2Classification"></h2>
+    <p class="desc" id="pClassification"></p>
     <div class="chart-row">
       <div class="chart-box"><canvas id="chartCoLevel"></canvas></div>
       <div class="chart-box"><canvas id="chartNo2Level"></canvas></div>
@@ -341,22 +343,22 @@
   </section>
 
   <section class="panel">
-    <h2>Readings by time of day</h2>
-    <p class="desc">Number of treated readings per shift (night, morning, afternoon, evening).</p>
+    <h2 id="h2Shift"></h2>
+    <p class="desc" id="pShift"></p>
     <div class="chart-box" style="height:200px; max-width:520px;"><canvas id="chartShift"></canvas></div>
   </section>
 
   <section class="panel">
-    <h2>Ranking of the 10 worst days</h2>
-    <p class="desc">Days sorted by the highest daily average CO, with average NO2 and percentage of hours in critical condition. Click a column to sort, or use the search box above.</p>
+    <h2 id="h2Ranking"></h2>
+    <p class="desc" id="pRanking"></p>
     <table id="rankingTable">
       <thead>
         <tr>
-          <th data-key="data_referencia">Date <span class="arrow">&#9662;</span></th>
-          <th data-key="co_medio">Avg. CO <span class="arrow">&#9662;</span></th>
-          <th data-key="no2_medio">Avg. NO2 <span class="arrow">&#9662;</span></th>
-          <th data-key="horas_condicao_critica">Critical hours <span class="arrow">&#9662;</span></th>
-          <th data-key="percentual_horas_criticas">% critical hours <span class="arrow">&#9662;</span></th>
+          <th data-key="data_referencia"><span class="th-label"></span> <span class="arrow">&#9662;</span></th>
+          <th data-key="co_medio"><span class="th-label"></span> <span class="arrow">&#9662;</span></th>
+          <th data-key="no2_medio"><span class="th-label"></span> <span class="arrow">&#9662;</span></th>
+          <th data-key="horas_condicao_critica"><span class="th-label"></span> <span class="arrow">&#9662;</span></th>
+          <th data-key="percentual_horas_criticas"><span class="th-label"></span> <span class="arrow">&#9662;</span></th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -366,12 +368,12 @@
   <section class="panel">
     <div class="report-panel">
       <div>
-        <h2>Development report</h2>
-        <p class="desc" style="margin-bottom:0;">Full write-up of the architecture, pipelines, data treatment and evidence behind these numbers.</p>
+        <h2 id="h2Report"></h2>
+        <p class="desc" id="pReport" style="margin-bottom:0;"></p>
       </div>
       <div class="report-actions">
-        <a class="pill-btn" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Open in new tab</a>
-        <button class="pill-btn" id="togglePreview" type="button">Show preview</button>
+        <a class="pill-btn" id="reportOpenLink" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener"></a>
+        <button class="pill-btn" id="togglePreview" type="button"></button>
       </div>
     </div>
     <div class="report-preview" id="reportPreview">
@@ -381,16 +383,93 @@
 </main>
 
 <footer>
-  AeroTrack &middot; Academic project &middot; AI and Digital Transformation Program &middot; Module 6 (Apache Hop)
-  <a href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Development report</a>
+  <span id="footerText"></span>
+  <a href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener" id="footerReportLink"></a>
 </footer>
 
 <script src="vendor/chart.umd.min.js"></script>
 <script>
+const I18N = {
+  en: {
+    tagline: 'Air quality monitoring · hourly readings processed by Apache Hop',
+    fullReport: 'Full report (PDF)',
+    langSwitchTo: 'PT',
+    generatedAt: 'Indicators generated at ',
+    lblYear: 'Year', allYears: 'All years',
+    lblMetric: 'Density map metric',
+    optMetricPct: '% critical hours', optMetricCo: 'Avg. CO (mg/m3)', optMetricNo2: 'Avg. NO2 (ug/m3)',
+    lblSearch: 'Search ranking', searchPlaceholder: 'e.g. 2004-10',
+    tileTreated: 'Treated readings', tileRejected: 'Rejected records', tileRejectedSub: 'no CO, NOx or NO2 reading',
+    tileCritical: '% hours in critical condition',
+    tileCo: 'Avg. CO (mg/m3)', tileNo2: 'Avg. NO2 (ug/m3)', tileMax: 'max',
+    tileTemp: 'Avg. temperature', tileHumidity: 'Avg. relative humidity',
+    h2Trend: 'Monthly trend',
+    pTrend: 'Monthly average of CO and NO2 across treated readings (each pollutant on its own scale). Filtered by the year selector above.',
+    h2Density: 'Monthly density map',
+    pDensity: 'Heat map of every month on record, colored from good (green) to critical (red) for the selected metric.',
+    legendGood: 'Good', legendCritical: 'Critical',
+    h2Classification: 'Reading classification',
+    pClassification: 'Distribution of readings by CO and NO2 level (analytical classification defined for this project).',
+    levelGood: 'GOOD', levelModerate: 'MODERATE', levelCritical: 'CRITICAL', levelNoData: 'NO DATA',
+    h2Shift: 'Readings by time of day',
+    pShift: 'Number of treated readings per shift (night, morning, afternoon, evening).',
+    shiftNight: 'NIGHT', shiftMorning: 'MORNING', shiftAfternoon: 'AFTERNOON', shiftEvening: 'EVENING',
+    h2Ranking: 'Ranking of the 10 worst days',
+    pRanking: 'Days sorted by the highest daily average CO, with average NO2 and percentage of hours in critical condition. Click a column to sort, or use the search box above.',
+    thDate: 'Date', thCo: 'Avg. CO', thNo2: 'Avg. NO2', thCriticalHours: 'Critical hours', thPctCritical: '% critical hours',
+    noMatch: 'No matching days.',
+    h2Report: 'Development report',
+    pReport: 'Full write-up of the architecture, pipelines, data treatment and evidence behind these numbers.',
+    openNewTab: 'Open in new tab', showPreview: 'Show preview', hidePreview: 'Hide preview',
+    footerText: 'AeroTrack · Academic project · AI and Digital Transformation Program · Module 6 (Apache Hop)',
+    footerReportLink: 'Development report',
+    months: ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    locale: 'en-US',
+  },
+  pt: {
+    tagline: 'Monitoramento da qualidade do ar · leituras horárias processadas pelo Apache Hop',
+    fullReport: 'Relatório completo (PDF)',
+    langSwitchTo: 'EN',
+    generatedAt: 'Indicadores gerados em ',
+    lblYear: 'Ano', allYears: 'Todos os anos',
+    lblMetric: 'Métrica do mapa de densidade',
+    optMetricPct: '% horas críticas', optMetricCo: 'CO médio (mg/m3)', optMetricNo2: 'NO2 médio (ug/m3)',
+    lblSearch: 'Buscar no ranking', searchPlaceholder: 'ex.: 2004-10',
+    tileTreated: 'Leituras tratadas', tileRejected: 'Registros rejeitados', tileRejectedSub: 'sem leitura de CO, NOx ou NO2',
+    tileCritical: '% horas em condição crítica',
+    tileCo: 'CO médio (mg/m3)', tileNo2: 'NO2 médio (ug/m3)', tileMax: 'máx',
+    tileTemp: 'Temperatura média', tileHumidity: 'Umidade relativa média',
+    h2Trend: 'Tendência mensal',
+    pTrend: 'Média mensal de CO e NO2 nas leituras tratadas (cada poluente na sua própria escala). Filtrado pelo seletor de ano acima.',
+    h2Density: 'Mapa de densidade mensal',
+    pDensity: 'Mapa de calor de todos os meses registrados, colorido do bom (verde) ao crítico (vermelho) conforme a métrica selecionada.',
+    legendGood: 'Bom', legendCritical: 'Crítico',
+    h2Classification: 'Classificação das leituras',
+    pClassification: 'Distribuição das leituras por nível de CO e NO2 (classificação analítica definida para este projeto).',
+    levelGood: 'BOM', levelModerate: 'MODERADO', levelCritical: 'CRÍTICO', levelNoData: 'SEM DADO',
+    h2Shift: 'Leituras por turno do dia',
+    pShift: 'Número de leituras tratadas por turno (madrugada, manhã, tarde, noite).',
+    shiftNight: 'MADRUGADA', shiftMorning: 'MANHÃ', shiftAfternoon: 'TARDE', shiftEvening: 'NOITE',
+    h2Ranking: 'Ranking dos 10 piores dias',
+    pRanking: 'Dias ordenados pela maior média diária de CO, com média de NO2 e percentual de horas em condição crítica. Clique numa coluna para ordenar, ou use a busca acima.',
+    thDate: 'Data', thCo: 'CO médio', thNo2: 'NO2 médio', thCriticalHours: 'Horas críticas', thPctCritical: '% horas críticas',
+    noMatch: 'Nenhum dia encontrado.',
+    h2Report: 'Relatório de desenvolvimento',
+    pReport: 'Documento completo com a arquitetura, os pipelines, o tratamento de dados e as evidências por trás destes números.',
+    openNewTab: 'Abrir em nova aba', showPreview: 'Mostrar prévia', hidePreview: 'Ocultar prévia',
+    footerText: 'AeroTrack · Projeto acadêmico · Programa de Transformação Digital e IA · Módulo 6 (Apache Hop)',
+    footerReportLink: 'Relatório de desenvolvimento',
+    months: ['', 'Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    locale: 'pt-BR',
+  }
+};
+
 let data = null;
 let charts = {};
-const monthName = m => ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+let lang = 'en';
 const c = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const t = (key) => I18N[lang][key];
+const monthName = m => I18N[lang].months[m];
 
 function verticalGradient(ctx, chartArea, colorHex) {
   if (!chartArea) return colorHex;
@@ -400,31 +479,80 @@ function verticalGradient(ctx, chartArea, colorHex) {
   return g;
 }
 
+function applyStaticText() {
+  document.documentElement.lang = lang;
+  document.getElementById('tagline').textContent = t('tagline');
+  document.getElementById('headerReportLink').textContent = t('fullReport');
+  document.getElementById('langToggle').textContent = t('langSwitchTo');
+  document.getElementById('langToggle').title = lang === 'en' ? 'Mudar para português' : 'Switch to English';
+  document.getElementById('themeToggle').title = lang === 'en' ? 'Toggle dark / light theme' : 'Alternar tema claro / escuro';
+  document.getElementById('themeToggle').setAttribute('aria-label', document.getElementById('themeToggle').title);
+
+  document.getElementById('lblYear').textContent = t('lblYear');
+  document.getElementById('lblMetric').textContent = t('lblMetric');
+  document.getElementById('optMetricPct').textContent = t('optMetricPct');
+  document.getElementById('optMetricCo').textContent = t('optMetricCo');
+  document.getElementById('optMetricNo2').textContent = t('optMetricNo2');
+  document.getElementById('lblSearch').textContent = t('lblSearch');
+  document.getElementById('rankingSearch').placeholder = t('searchPlaceholder');
+
+  document.getElementById('h2Trend').textContent = t('h2Trend');
+  document.getElementById('pTrend').textContent = t('pTrend');
+  document.getElementById('h2Density').textContent = t('h2Density');
+  document.getElementById('pDensity').textContent = t('pDensity');
+  document.getElementById('legendGood').textContent = t('legendGood');
+  document.getElementById('legendCritical').textContent = t('legendCritical');
+  document.getElementById('h2Classification').textContent = t('h2Classification');
+  document.getElementById('pClassification').textContent = t('pClassification');
+  document.getElementById('h2Shift').textContent = t('h2Shift');
+  document.getElementById('pShift').textContent = t('pShift');
+  document.getElementById('h2Ranking').textContent = t('h2Ranking');
+  document.getElementById('pRanking').textContent = t('pRanking');
+
+  const thLabels = [t('thDate'), t('thCo'), t('thNo2'), t('thCriticalHours'), t('thPctCritical')];
+  document.querySelectorAll('#rankingTable th .th-label').forEach((el, i) => { el.textContent = thLabels[i]; });
+
+  document.getElementById('h2Report').textContent = t('h2Report');
+  document.getElementById('pReport').textContent = t('pReport');
+  document.getElementById('reportOpenLink').textContent = t('openNewTab');
+  const previewOpen = document.getElementById('reportPreview').classList.contains('open');
+  document.getElementById('togglePreview').textContent = previewOpen ? t('hidePreview') : t('showPreview');
+
+  document.getElementById('footerText').textContent = t('footerText');
+  document.getElementById('footerReportLink').textContent = t('footerReportLink');
+
+  if (data) {
+    document.getElementById('generatedAt').textContent =
+      t('generatedAt') + new Date(data.gerado_em).toLocaleString(t('locale'));
+  }
+}
+
 function renderTiles() {
   const g = data.indicadores_gerais;
   const pct = g.percentual_horas_criticas;
+  const loc = t('locale');
   const tiles = [
-    { label: 'Treated readings', value: g.total_leituras.toLocaleString('en-US'), color: 'var(--series-1)' },
-    { label: 'Rejected records', value: data.registros_rejeitados.toLocaleString('en-US'),
-      sub: 'no CO, NOx or NO2 reading', color: 'var(--series-4)' },
-    { label: 'Avg. CO (mg/m3)', value: g.co_medio_geral, sub: 'max ' + g.co_maximo_geral, color: 'var(--series-2)' },
-    { label: 'Avg. NO2 (ug/m3)', value: g.no2_medio_geral, sub: 'max ' + g.no2_maximo_geral, color: 'var(--series-3)' },
-    { label: 'Avg. temperature', value: g.temperatura_media_geral + ' °C', color: 'var(--series-5)' },
-    { label: 'Avg. relative humidity', value: g.umidade_media_geral + '%', color: 'var(--series-1)' },
+    { label: t('tileTreated'), value: g.total_leituras.toLocaleString(loc), color: 'var(--series-1)' },
+    { label: t('tileRejected'), value: data.registros_rejeitados.toLocaleString(loc),
+      sub: t('tileRejectedSub'), color: 'var(--series-4)' },
+    { label: t('tileCo'), value: g.co_medio_geral, sub: t('tileMax') + ' ' + g.co_maximo_geral, color: 'var(--series-2)' },
+    { label: t('tileNo2'), value: g.no2_medio_geral, sub: t('tileMax') + ' ' + g.no2_maximo_geral, color: 'var(--series-3)' },
+    { label: t('tileTemp'), value: g.temperatura_media_geral + ' °C', color: 'var(--series-5)' },
+    { label: t('tileHumidity'), value: g.umidade_media_geral + '%', color: 'var(--series-1)' },
   ];
   const ringTile = `
     <div class="tile ring-tile" style="--tile-color:var(--critical)">
       <div class="ring" style="--pct:${pct}"></div>
       <div>
-        <div class="label">% hours in critical condition</div>
+        <div class="label">${t('tileCritical')}</div>
         <div class="value critical">${pct}%</div>
       </div>
     </div>`;
-  document.getElementById('tiles').innerHTML = ringTile + tiles.map(t => `
-    <div class="tile" style="--tile-color:${t.color}">
-      <div class="label">${t.label}</div>
-      <div class="value">${t.value}</div>
-      ${t.sub ? `<div class="sub">${t.sub}</div>` : ''}
+  document.getElementById('tiles').innerHTML = ringTile + tiles.map(tl => `
+    <div class="tile" style="--tile-color:${tl.color}">
+      <div class="label">${tl.label}</div>
+      <div class="value">${tl.value}</div>
+      ${tl.sub ? `<div class="sub">${tl.sub}</div>` : ''}
     </div>`).join('');
 }
 
@@ -466,8 +594,8 @@ function renderMonthlyCharts(year) {
       }
     });
   }
-  lineChart('coMonthly', 'chartCoMonthly', 'co_medio', '--series-1', 'Avg. CO (mg/m3)');
-  lineChart('no2Monthly', 'chartNo2Monthly', 'no2_medio', '--series-2', 'Avg. NO2 (ug/m3)');
+  lineChart('coMonthly', 'chartCoMonthly', 'co_medio', '--series-1', t('tileCo'));
+  lineChart('no2Monthly', 'chartNo2Monthly', 'no2_medio', '--series-2', t('tileNo2'));
 }
 
 function renderHeatmap(metric) {
@@ -486,8 +614,8 @@ function renderHeatmap(metric) {
       const rec = byYearMonth[y + '-' + m];
       if (!rec) { html += `<div class="heat-cell heat-empty"></div>`; continue; }
       const v = rec[metric];
-      const t = max === min ? 0.5 : (v - min) / (max - min);
-      html += `<div class="heat-cell" data-year="${y}" style="--t:${t.toFixed(3)}" title="${monthName(m)}/${y}: ${v}"></div>`;
+      const tt = max === min ? 0.5 : (v - min) / (max - min);
+      html += `<div class="heat-cell" data-year="${y}" style="--t:${tt.toFixed(3)}" title="${monthName(m)}/${y}: ${v}"></div>`;
     }
   });
   const grid = document.getElementById('heatmapGrid');
@@ -509,7 +637,7 @@ function applyYearFocus(year) {
 
 function levelChart(key, canvasId, dist) {
   const order = ['BOM', 'MODERADO', 'CRITICO', 'SEM_DADO'];
-  const labelFor = { BOM: 'GOOD', MODERADO: 'MODERATE', CRITICO: 'CRITICAL', SEM_DADO: 'NO DATA' };
+  const labelFor = { BOM: t('levelGood'), MODERADO: t('levelModerate'), CRITICO: t('levelCritical'), SEM_DADO: t('levelNoData') };
   const colorFor = { BOM: c('--good'), MODERADO: c('--warning'), CRITICO: c('--critical'), SEM_DADO: c('--muted-slot') };
   const byLevel = Object.fromEntries(dist.map(d => [d[Object.keys(d)[0]], d.quantidade]));
   const present = order.filter(n => byLevel[n] !== undefined);
@@ -539,16 +667,16 @@ function levelChart(key, canvasId, dist) {
 
 function renderShiftChart() {
   const shiftOrder = ['MADRUGADA', 'MANHA', 'TARDE', 'NOITE'];
-  const shiftLabels = ['NIGHT', 'MORNING', 'AFTERNOON', 'EVENING'];
+  const shiftLabels = [t('shiftNight'), t('shiftMorning'), t('shiftAfternoon'), t('shiftEvening')];
   const shiftColors = [c('--series-1'), c('--series-2'), c('--series-3'), c('--series-4')];
-  const shiftByName = Object.fromEntries(data.leituras_por_turno.map(t => [t.turno, t.quantidade]));
+  const shiftByName = Object.fromEntries(data.leituras_por_turno.map(tt => [tt.turno, tt.quantidade]));
   if (charts.shift) charts.shift.destroy();
   charts.shift = new Chart(document.getElementById('chartShift'), {
     type: 'bar',
     data: {
       labels: shiftLabels,
       datasets: [{
-        data: shiftOrder.map(t => shiftByName[t] || 0),
+        data: shiftOrder.map(tt => shiftByName[tt] || 0),
         backgroundColor: shiftColors,
         borderRadius: 6,
         maxBarThickness: 60,
@@ -577,16 +705,16 @@ function renderRankingTable() {
       return av > bv ? rankingSort.dir : av < bv ? -rankingSort.dir : 0;
     });
   }
-  const critical = c('--critical'), good = c('--good');
+  const critical = c('--critical'), good = c('--good'), loc = t('locale');
   const tbody = document.querySelector('#rankingTable tbody');
   tbody.innerHTML = rows.map(r => `
     <tr>
-      <td>${new Date(r.data_referencia).toLocaleDateString('en-US')}</td>
+      <td>${new Date(r.data_referencia).toLocaleDateString(loc)}</td>
       <td>${r.co_medio}</td>
       <td>${r.no2_medio}</td>
       <td>${r.horas_condicao_critica}</td>
       <td class="severity-cell"><span class="severity-bar" style="background:color-mix(in srgb, ${critical} ${r.percentual_horas_criticas}%, ${good})"></span>${r.percentual_horas_criticas}%</td>
-    </tr>`).join('') || `<tr><td colspan="5" style="color:var(--text-muted)">No matching days.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="5" style="color:var(--text-muted)">${t('noMatch')}</td></tr>`;
 
   document.querySelectorAll('#rankingTable th').forEach(th => {
     th.classList.toggle('sorted', th.dataset.key === rankingSort.key);
@@ -595,6 +723,8 @@ function renderRankingTable() {
 }
 
 function renderAll() {
+  applyStaticText();
+  Chart.defaults.locale = t('locale');
   renderTiles();
   renderMonthlyCharts(document.getElementById('filterYear').value);
   renderHeatmap(document.getElementById('filterMetric').value);
@@ -607,7 +737,12 @@ function renderAll() {
 function setupFilters() {
   const years = [...new Set(data.evolucao_mensal.map(r => String(r.ano)))].sort();
   const yearSelect = document.getElementById('filterYear');
-  yearSelect.innerHTML = '<option value="all">All years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+  const rebuildYearOptions = () => {
+    const current = yearSelect.value || 'all';
+    yearSelect.innerHTML = `<option value="all">${t('allYears')}</option>` + years.map(y => `<option value="${y}">${y}</option>`).join('');
+    yearSelect.value = current;
+  };
+  rebuildYearOptions();
   yearSelect.addEventListener('change', () => {
     renderMonthlyCharts(yearSelect.value);
     applyYearFocus(yearSelect.value);
@@ -628,7 +763,7 @@ function setupFilters() {
   document.getElementById('togglePreview').addEventListener('click', () => {
     const box = document.getElementById('reportPreview');
     const open = box.classList.toggle('open');
-    document.getElementById('togglePreview').textContent = open ? 'Hide preview' : 'Show preview';
+    document.getElementById('togglePreview').textContent = open ? t('hidePreview') : t('showPreview');
     if (open) {
       const frame = document.getElementById('reportFrame');
       if (!frame.src) frame.src = '../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf';
@@ -646,18 +781,28 @@ function setupFilters() {
     Chart.defaults.borderColor = c('--grid');
     renderAll();
   });
+
+  document.getElementById('langToggle').addEventListener('click', () => {
+    lang = lang === 'en' ? 'pt' : 'en';
+    try { localStorage.setItem('aerotrack-lang', lang); } catch (e) {}
+    renderAll();
+    rebuildYearOptions();
+  });
 }
 
 async function main() {
+  try {
+    const saved = localStorage.getItem('aerotrack-lang');
+    if (saved === 'en' || saved === 'pt') lang = saved;
+    else if ((navigator.language || '').toLowerCase().startsWith('pt')) lang = 'pt';
+  } catch (e) {}
+
   const res = await fetch('data/indicadores.json');
   data = await res.json();
 
   Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
   Chart.defaults.color = c('--text-secondary');
   Chart.defaults.borderColor = c('--grid');
-
-  document.getElementById('generatedAt').textContent =
-    'Indicators generated at ' + new Date(data.gerado_em).toLocaleString('en-US');
 
   setupFilters();
   renderAll();
