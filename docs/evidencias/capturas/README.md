@@ -19,6 +19,9 @@ nome.
 | `E08-database-tables.png` | Cliente de banco (psql) listando as tabelas e visões criadas | Disponível |
 | `E09-database-readings-sample.png` | Amostra real de `leituras_qualidade_ar` | Disponível |
 | `E10-database-rerun.png` | Contagem de linhas antes e depois da reexecução do workflow, comprovando a ausência de duplicidade | Disponível |
+| `E11-dashboard-shift.png` | Gráfico de leituras por turno do dia | Disponível |
+| `E12-dashboard-report-panel.png` | Painel do dashboard com o link e a prévia embutida do relatório de desenvolvimento em PDF | Disponível |
+| `E13-dashboard-light-theme-pt.png` | Dashboard no tema claro e em português, evidenciando os seletores de tema e idioma | Disponível |
 
 As capturas E08 a E10 foram geradas renderizando a saída real do `psql`
 (mesmos dados retornados pelo banco) em um cartão estilizado, sem depender
