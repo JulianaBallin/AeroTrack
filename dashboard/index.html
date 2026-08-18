@@ -4,10 +4,21 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>AeroTrack | Air Quality Dashboard</title>
+<script>
+(function () {
+  try {
+    var saved = localStorage.getItem('aerotrack-theme');
+    if (saved === 'light' || saved === 'dark') {
+      document.documentElement.setAttribute('data-theme', saved);
+    }
+  } catch (e) {}
+})();
+</script>
 <style>
   :root {
     color-scheme: light;
-    --surface-1: #fcfcfb;
+    --surface-1: #ffffff;
+    --surface-2: #f4f3ef;
     --page: #f9f9f7;
     --text-primary: #0b0b0b;
     --text-secondary: #52514e;
@@ -19,53 +30,60 @@
     --series-2: #eb6834;
     --series-3: #1baf7a;
     --series-4: #4a3aa7;
+    --series-5: #d63b8f;
     --good: #0ca30c;
     --warning: #e8a300;
     --critical: #d03b3b;
     --muted-slot: #c3c2b7;
     --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 8px 24px rgba(11,11,11,0.06);
+    --grad-brand: linear-gradient(135deg, #2a78d6 0%, #1baf7a 55%, #ffb020 120%);
+    --grad-header: linear-gradient(90deg, #2a78d6, #1baf7a 45%, #d63b8f 85%, #ffb020);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --surface-1: #1a1a19;
-      --page: #0d0d0d;
+      --surface-1: #17171a;
+      --surface-2: #1e1e22;
+      --page: #0c0c0e;
       --text-primary: #ffffff;
       --text-secondary: #c3c2b7;
-      --text-muted: #898781;
-      --grid: #2c2c2a;
-      --axis: #383835;
+      --text-muted: #8b8a92;
+      --grid: #2c2c2f;
+      --axis: #3a3a3e;
       --border: rgba(255,255,255,0.10);
-      --series-1: #3987e5;
-      --series-2: #d95926;
-      --series-3: #199e70;
-      --series-4: #9085e9;
-      --good: #0ca30c;
-      --warning: #e8a300;
-      --critical: #e66767;
-      --muted-slot: #52514e;
-      --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.35);
+      --series-1: #4c9bef;
+      --series-2: #ef8046;
+      --series-3: #2dc98a;
+      --series-4: #a493f2;
+      --series-5: #ef6ab0;
+      --good: #2dc98a;
+      --warning: #f0b429;
+      --critical: #ef6a6a;
+      --muted-slot: #46454c;
+      --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 28px rgba(0,0,0,0.45);
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --surface-1: #1a1a19;
-    --page: #0d0d0d;
+    --surface-1: #17171a;
+    --surface-2: #1e1e22;
+    --page: #0c0c0e;
     --text-primary: #ffffff;
     --text-secondary: #c3c2b7;
-    --text-muted: #898781;
-    --grid: #2c2c2a;
-    --axis: #383835;
+    --text-muted: #8b8a92;
+    --grid: #2c2c2f;
+    --axis: #3a3a3e;
     --border: rgba(255,255,255,0.10);
-    --series-1: #3987e5;
-    --series-2: #d95926;
-    --series-3: #199e70;
-    --series-4: #9085e9;
-    --good: #0ca30c;
-    --warning: #e8a300;
-    --critical: #e66767;
-    --muted-slot: #52514e;
-    --shadow: 0 1px 2px rgba(0,0,0,0.25), 0 8px 24px rgba(0,0,0,0.35);
+    --series-1: #4c9bef;
+    --series-2: #ef8046;
+    --series-3: #2dc98a;
+    --series-4: #a493f2;
+    --series-5: #ef6ab0;
+    --good: #2dc98a;
+    --warning: #f0b429;
+    --critical: #ef6a6a;
+    --muted-slot: #46454c;
+    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 8px 28px rgba(0,0,0,0.45);
   }
 
   * { box-sizing: border-box; }
@@ -75,8 +93,9 @@
     color: var(--text-primary);
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   }
+  .accent-bar { height: 4px; background: var(--grad-header); }
   header {
-    padding: 28px 32px 20px;
+    padding: 24px 32px 18px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -85,16 +104,51 @@
   }
   .brand { display: flex; align-items: center; gap: 12px; }
   .brand-mark {
-    width: 42px; height: 42px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--series-1), var(--series-3));
+    width: 44px; height: 44px; border-radius: 13px;
+    background: var(--grad-brand);
     display: flex; align-items: center; justify-content: center;
     box-shadow: var(--shadow);
   }
-  .brand-mark svg { width: 24px; height: 24px; }
-  h1 { font-size: 1.35rem; margin: 0; letter-spacing: -0.01em; }
+  .brand-mark svg { width: 25px; height: 25px; }
+  h1 { font-size: 1.4rem; margin: 0; letter-spacing: -0.01em; }
   header p { margin: 2px 0 0; color: var(--text-secondary); font-size: 0.85rem; }
+  .head-right { display: flex; align-items: center; gap: 10px; }
   .meta { color: var(--text-muted); font-size: 0.78rem; text-align: right; }
+
+  .icon-btn, .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-1); border: 1px solid var(--border);
+    color: var(--text-secondary); border-radius: 999px;
+    cursor: pointer; font-family: inherit; box-shadow: var(--shadow);
+    transition: transform 0.12s ease, color 0.15s ease;
+  }
+  .icon-btn { width: 38px; height: 38px; justify-content: center; padding: 0; }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .pill-btn { padding: 8px 14px; font-size: 0.78rem; font-weight: 600; text-decoration: none; }
+  .icon-btn:hover, .pill-btn:hover { transform: translateY(-1px); color: var(--series-1); }
+  .icon-btn .moon { display: none; }
+  :root[data-theme="dark"] .icon-btn .sun { display: none; }
+  :root[data-theme="dark"] .icon-btn .moon { display: block; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .icon-btn .sun { display: none; }
+    :root:not([data-theme="light"]) .icon-btn .moon { display: block; }
+  }
+
   main { padding: 0 32px 48px; max-width: 1180px; margin: 0 auto; }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 14px; align-items: center;
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 14px; padding: 12px 16px; margin-bottom: 22px; box-shadow: var(--shadow);
+  }
+  .filters .group { display: flex; align-items: center; gap: 8px; }
+  .filters label { font-size: 0.74rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .filters select, .filters input[type="search"] {
+    font-family: inherit; font-size: 0.82rem; color: var(--text-primary);
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px;
+  }
+  .filters .spacer { flex: 1; }
 
   .tiles {
     display: grid;
@@ -103,6 +157,7 @@
     margin-bottom: 28px;
   }
   .tile {
+    position: relative; overflow: hidden;
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: 14px;
@@ -110,19 +165,36 @@
     box-shadow: var(--shadow);
     transition: transform 0.15s ease;
   }
+  .tile:hover { transform: translateY(-2px); }
+  .tile::before {
+    content: ""; position: absolute; left: 0; top: 0; right: 0; height: 3px;
+    background: var(--tile-color, var(--series-1));
+  }
   .tile .label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
   .tile .value { font-size: 1.65rem; font-weight: 600; margin-top: 4px; }
   .tile .value.critical { color: var(--critical); }
   .tile .sub { font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px; }
 
+  .tile.ring-tile { display: flex; align-items: center; gap: 14px; }
+  .ring {
+    --pct: 0;
+    width: 56px; height: 56px; border-radius: 50%; flex: none;
+    background: conic-gradient(var(--critical) calc(var(--pct) * 1%), var(--grid) 0);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ring::after {
+    content: ""; width: 40px; height: 40px; border-radius: 50%; background: var(--surface-1);
+  }
+
   section.panel {
     background: var(--surface-1);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 18px 20px 8px;
+    padding: 18px 20px 12px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
   }
+  .panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   .panel h2 { font-size: 0.95rem; margin: 0 0 2px; }
   .panel .desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0 0 12px; }
   .chart-row {
@@ -135,19 +207,64 @@
     .chart-row { grid-template-columns: 1fr; }
   }
 
+  /* Heatmap / density map */
+  .heat-legend { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px; }
+  .heat-legend .bar {
+    width: 120px; height: 8px; border-radius: 4px;
+    background: linear-gradient(90deg, var(--good), var(--warning), var(--critical));
+  }
+  .heatmap {
+    display: grid;
+    grid-template-columns: 54px repeat(12, 1fr);
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+  .heat-corner {}
+  .heat-month-label, .heat-year-label {
+    font-size: 0.68rem; color: var(--text-muted); text-align: center; align-self: center;
+  }
+  .heat-year-label { text-align: right; padding-right: 6px; font-weight: 600; transition: opacity 0.15s ease; }
+  .heat-cell {
+    aspect-ratio: 1 / 1; border-radius: 5px; min-width: 22px;
+    background: color-mix(in srgb, var(--critical) calc(var(--t, 0) * 100%), var(--good));
+    transition: opacity 0.15s ease, transform 0.1s ease;
+  }
+  .heat-cell:hover { transform: scale(1.12); }
+  .heat-cell.heat-empty { background: var(--grid); opacity: 0.5; }
+  .heatmap.year-focus .heat-cell:not(.heat-active),
+  .heatmap.year-focus .heat-year-label:not(.heat-active) { opacity: 0.25; }
+
   table { width: 100%; border-collapse: collapse; font-size: 0.82rem; margin-bottom: 8px; }
   th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
-  th { color: var(--text-muted); font-weight: 500; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; }
+  th { color: var(--text-muted); font-weight: 500; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; cursor: pointer; user-select: none; white-space: nowrap; }
+  th:hover { color: var(--series-1); }
+  th .arrow { opacity: 0.4; font-size: 0.65rem; margin-left: 3px; }
+  th.sorted .arrow { opacity: 1; color: var(--series-1); }
+  tbody tr { border-left: 3px solid transparent; }
   tbody tr:hover { background: color-mix(in srgb, var(--text-primary) 4%, transparent); }
+  td.severity-cell { position: relative; }
+  .severity-bar { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
 
   .legend-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 0.76rem; color: var(--text-secondary); margin-bottom: 6px; }
   .legend-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
 
+  .report-panel { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .report-preview {
+    display: none; margin-top: 14px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+    height: 70vh; max-height: 780px;
+  }
+  .report-preview.open { display: block; }
+  .report-preview iframe { width: 100%; height: 100%; border: 0; background: var(--surface-2); }
+
   footer { padding: 24px 32px 40px; color: var(--text-muted); font-size: 0.76rem; text-align: center; }
+  footer a { margin-left: 4px; }
   a { color: var(--series-1); }
 </style>
 </head>
 <body>
+<div class="accent-bar"></div>
 <header>
   <div class="brand">
     <div class="brand-mark">
@@ -161,19 +278,57 @@
       <p>Air quality monitoring &middot; hourly readings processed by Apache Hop</p>
     </div>
   </div>
-  <div class="meta" id="generatedAt"></div>
+  <div class="head-right">
+    <div class="meta" id="generatedAt"></div>
+    <a class="pill-btn" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Full report (PDF)</a>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="Toggle dark / light theme" title="Toggle dark / light theme">
+      <svg class="sun" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2.5 12h2.4M19.1 12h2.4M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+      <svg class="moon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+  </div>
 </header>
 
 <main>
+  <div class="filters">
+    <div class="group">
+      <label for="filterYear">Year</label>
+      <select id="filterYear"></select>
+    </div>
+    <div class="group">
+      <label for="filterMetric">Density map metric</label>
+      <select id="filterMetric">
+        <option value="percentual_horas_criticas">% critical hours</option>
+        <option value="co_medio">Avg. CO (mg/m3)</option>
+        <option value="no2_medio">Avg. NO2 (ug/m3)</option>
+      </select>
+    </div>
+    <div class="spacer"></div>
+    <div class="group">
+      <label for="rankingSearch">Search ranking</label>
+      <input type="search" id="rankingSearch" placeholder="e.g. 2004-10" />
+    </div>
+  </div>
+
   <div class="tiles" id="tiles"></div>
 
   <section class="panel">
     <h2>Monthly trend</h2>
-    <p class="desc">Monthly average of CO and NO2 across treated readings (each pollutant on its own scale).</p>
+    <p class="desc">Monthly average of CO and NO2 across treated readings (each pollutant on its own scale). Filtered by the year selector above.</p>
     <div class="chart-row">
       <div class="chart-box"><canvas id="chartCoMonthly"></canvas></div>
       <div class="chart-box"><canvas id="chartNo2Monthly"></canvas></div>
     </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div>
+        <h2>Monthly density map</h2>
+        <p class="desc">Heat map of every month on record, colored from good (green) to critical (red) for the selected metric.</p>
+      </div>
+      <div class="heat-legend"><span>Good</span><span class="bar"></span><span>Critical</span></div>
+    </div>
+    <div class="heatmap" id="heatmapGrid"></div>
   </section>
 
   <section class="panel">
@@ -193,69 +348,111 @@
 
   <section class="panel">
     <h2>Ranking of the 10 worst days</h2>
-    <p class="desc">Days sorted by the highest daily average CO, with average NO2 and percentage of hours in critical condition.</p>
+    <p class="desc">Days sorted by the highest daily average CO, with average NO2 and percentage of hours in critical condition. Click a column to sort, or use the search box above.</p>
     <table id="rankingTable">
       <thead>
-        <tr><th>Date</th><th>Avg. CO</th><th>Avg. NO2</th><th>Critical hours</th><th>% critical hours</th></tr>
+        <tr>
+          <th data-key="data_referencia">Date <span class="arrow">&#9662;</span></th>
+          <th data-key="co_medio">Avg. CO <span class="arrow">&#9662;</span></th>
+          <th data-key="no2_medio">Avg. NO2 <span class="arrow">&#9662;</span></th>
+          <th data-key="horas_condicao_critica">Critical hours <span class="arrow">&#9662;</span></th>
+          <th data-key="percentual_horas_criticas">% critical hours <span class="arrow">&#9662;</span></th>
+        </tr>
       </thead>
       <tbody></tbody>
     </table>
+  </section>
+
+  <section class="panel">
+    <div class="report-panel">
+      <div>
+        <h2>Development report</h2>
+        <p class="desc" style="margin-bottom:0;">Full write-up of the architecture, pipelines, data treatment and evidence behind these numbers.</p>
+      </div>
+      <div class="report-actions">
+        <a class="pill-btn" href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Open in new tab</a>
+        <button class="pill-btn" id="togglePreview" type="button">Show preview</button>
+      </div>
+    </div>
+    <div class="report-preview" id="reportPreview">
+      <iframe id="reportFrame" title="AeroTrack development report" loading="lazy"></iframe>
+    </div>
   </section>
 </main>
 
 <footer>
   AeroTrack &middot; Academic project &middot; AI and Digital Transformation Program &middot; Module 6 (Apache Hop)
+  <a href="../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf" target="_blank" rel="noopener">Development report</a>
 </footer>
 
 <script src="vendor/chart.umd.min.js"></script>
 <script>
-async function main() {
-  const res = await fetch('data/indicadores.json');
-  const data = await res.json();
+let data = null;
+let charts = {};
+const monthName = m => ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
+const c = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-  const styles = getComputedStyle(document.documentElement);
-  const c = (name) => styles.getPropertyValue(name).trim();
-  Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
-  Chart.defaults.color = c('--text-secondary');
-  Chart.defaults.borderColor = c('--grid');
+function verticalGradient(ctx, chartArea, colorHex) {
+  if (!chartArea) return colorHex;
+  const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+  g.addColorStop(0, colorHex + 'aa');
+  g.addColorStop(1, colorHex + '05');
+  return g;
+}
 
-  document.getElementById('generatedAt').textContent =
-    'Indicators generated at ' + new Date(data.gerado_em).toLocaleString('en-US');
-
+function renderTiles() {
   const g = data.indicadores_gerais;
+  const pct = g.percentual_horas_criticas;
   const tiles = [
-    { label: 'Treated readings', value: g.total_leituras.toLocaleString('en-US') },
+    { label: 'Treated readings', value: g.total_leituras.toLocaleString('en-US'), color: 'var(--series-1)' },
     { label: 'Rejected records', value: data.registros_rejeitados.toLocaleString('en-US'),
-      sub: 'no CO, NOx or NO2 reading' },
-    { label: '% hours in critical condition', value: g.percentual_horas_criticas + '%', critical: true },
-    { label: 'Avg. CO (mg/m3)', value: g.co_medio_geral, sub: 'max ' + g.co_maximo_geral },
-    { label: 'Avg. NO2 (ug/m3)', value: g.no2_medio_geral, sub: 'max ' + g.no2_maximo_geral },
-    { label: 'Avg. temperature', value: g.temperatura_media_geral + ' °C' },
-    { label: 'Avg. relative humidity', value: g.umidade_media_geral + '%' },
+      sub: 'no CO, NOx or NO2 reading', color: 'var(--series-4)' },
+    { label: 'Avg. CO (mg/m3)', value: g.co_medio_geral, sub: 'max ' + g.co_maximo_geral, color: 'var(--series-2)' },
+    { label: 'Avg. NO2 (ug/m3)', value: g.no2_medio_geral, sub: 'max ' + g.no2_maximo_geral, color: 'var(--series-3)' },
+    { label: 'Avg. temperature', value: g.temperatura_media_geral + ' °C', color: 'var(--series-5)' },
+    { label: 'Avg. relative humidity', value: g.umidade_media_geral + '%', color: 'var(--series-1)' },
   ];
-  document.getElementById('tiles').innerHTML = tiles.map(t => `
-    <div class="tile">
+  const ringTile = `
+    <div class="tile ring-tile" style="--tile-color:var(--critical)">
+      <div class="ring" style="--pct:${pct}"></div>
+      <div>
+        <div class="label">% hours in critical condition</div>
+        <div class="value critical">${pct}%</div>
+      </div>
+    </div>`;
+  document.getElementById('tiles').innerHTML = ringTile + tiles.map(t => `
+    <div class="tile" style="--tile-color:${t.color}">
       <div class="label">${t.label}</div>
-      <div class="value${t.critical ? ' critical' : ''}">${t.value}</div>
+      <div class="value">${t.value}</div>
       ${t.sub ? `<div class="sub">${t.sub}</div>` : ''}
     </div>`).join('');
+}
 
-  const monthName = m => ['', 'Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m];
-  const monthlyLabels = data.evolucao_mensal.map(r => monthName(r.mes) + '/' + String(r.ano).slice(2));
+function filteredMonthly(year) {
+  return year === 'all' ? data.evolucao_mensal : data.evolucao_mensal.filter(r => String(r.ano) === year);
+}
 
-  function lineChart(canvasId, values, color, yLabel) {
-    new Chart(document.getElementById(canvasId), {
+function renderMonthlyCharts(year) {
+  const rows = filteredMonthly(year);
+  const labels = rows.map(r => monthName(r.mes) + '/' + String(r.ano).slice(2));
+
+  function lineChart(key, canvasId, field, colorVar, yLabel) {
+    const color = c(colorVar);
+    if (charts[key]) charts[key].destroy();
+    charts[key] = new Chart(document.getElementById(canvasId), {
       type: 'line',
       data: {
-        labels: monthlyLabels,
+        labels,
         datasets: [{
-          data: values,
+          data: rows.map(r => r[field]),
           borderColor: color,
-          backgroundColor: color,
-          borderWidth: 2,
+          backgroundColor: (ctx) => verticalGradient(ctx.chart.ctx, ctx.chart.chartArea, color),
+          borderWidth: 2.5,
           pointRadius: 3,
           pointHoverRadius: 5,
-          tension: 0.25,
+          pointBackgroundColor: color,
+          tension: 0.3,
+          fill: true,
         }]
       },
       options: {
@@ -269,52 +466,91 @@ async function main() {
       }
     });
   }
-  lineChart('chartCoMonthly', data.evolucao_mensal.map(r => r.co_medio), c('--series-1'), 'Avg. CO (mg/m3)');
-  lineChart('chartNo2Monthly', data.evolucao_mensal.map(r => r.no2_medio), c('--series-2'), 'Avg. NO2 (ug/m3)');
+  lineChart('coMonthly', 'chartCoMonthly', 'co_medio', '--series-1', 'Avg. CO (mg/m3)');
+  lineChart('no2Monthly', 'chartNo2Monthly', 'no2_medio', '--series-2', 'Avg. NO2 (ug/m3)');
+}
 
-  function levelChart(canvasId, dist) {
-    const order = ['BOM', 'MODERADO', 'CRITICO', 'SEM_DADO'];
-    const labelFor = { BOM: 'GOOD', MODERADO: 'MODERATE', CRITICO: 'CRITICAL', SEM_DADO: 'NO DATA' };
-    const colorFor = { BOM: c('--good'), MODERADO: c('--warning'), CRITICO: c('--critical'), SEM_DADO: c('--muted-slot') };
-    const byLevel = Object.fromEntries(dist.map(d => [d[Object.keys(d)[0]], d.quantidade]));
-    const present = order.filter(n => byLevel[n] !== undefined);
-    new Chart(document.getElementById(canvasId), {
-      type: 'bar',
-      data: {
-        labels: present.map(n => labelFor[n]),
-        datasets: [{
-          data: present.map(n => byLevel[n]),
-          backgroundColor: present.map(n => colorFor[n]),
-          borderRadius: 4,
-          maxBarThickness: 46,
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { grid: { display: false }, ticks: { color: c('--text-muted'), font: { size: 10 } } },
-          y: { grid: { color: c('--grid') }, ticks: { color: c('--text-muted'), font: { size: 10 } } }
-        }
-      }
-    });
+function renderHeatmap(metric) {
+  const rows = data.evolucao_mensal;
+  const years = [...new Set(rows.map(r => r.ano))].sort();
+  const byYearMonth = {};
+  rows.forEach(r => { byYearMonth[r.ano + '-' + r.mes] = r; });
+  const values = rows.map(r => r[metric]);
+  const max = Math.max(...values), min = Math.min(...values);
+
+  let html = '<div class="heat-corner"></div>';
+  for (let m = 1; m <= 12; m++) html += `<div class="heat-month-label">${monthName(m)}</div>`;
+  years.forEach(y => {
+    html += `<div class="heat-year-label" data-year="${y}">${y}</div>`;
+    for (let m = 1; m <= 12; m++) {
+      const rec = byYearMonth[y + '-' + m];
+      if (!rec) { html += `<div class="heat-cell heat-empty"></div>`; continue; }
+      const v = rec[metric];
+      const t = max === min ? 0.5 : (v - min) / (max - min);
+      html += `<div class="heat-cell" data-year="${y}" style="--t:${t.toFixed(3)}" title="${monthName(m)}/${y}: ${v}"></div>`;
+    }
+  });
+  const grid = document.getElementById('heatmapGrid');
+  grid.innerHTML = html;
+  applyYearFocus(document.getElementById('filterYear').value);
+}
+
+function applyYearFocus(year) {
+  const grid = document.getElementById('heatmapGrid');
+  if (year === 'all') {
+    grid.classList.remove('year-focus');
+    return;
   }
-  levelChart('chartCoLevel', data.distribuicao_co_nivel);
-  levelChart('chartNo2Level', data.distribuicao_no2_nivel);
+  grid.classList.add('year-focus');
+  grid.querySelectorAll('[data-year]').forEach(el => {
+    el.classList.toggle('heat-active', el.getAttribute('data-year') === year);
+  });
+}
 
+function levelChart(key, canvasId, dist) {
+  const order = ['BOM', 'MODERADO', 'CRITICO', 'SEM_DADO'];
+  const labelFor = { BOM: 'GOOD', MODERADO: 'MODERATE', CRITICO: 'CRITICAL', SEM_DADO: 'NO DATA' };
+  const colorFor = { BOM: c('--good'), MODERADO: c('--warning'), CRITICO: c('--critical'), SEM_DADO: c('--muted-slot') };
+  const byLevel = Object.fromEntries(dist.map(d => [d[Object.keys(d)[0]], d.quantidade]));
+  const present = order.filter(n => byLevel[n] !== undefined);
+  if (charts[key]) charts[key].destroy();
+  charts[key] = new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: {
+      labels: present.map(n => labelFor[n]),
+      datasets: [{
+        data: present.map(n => byLevel[n]),
+        backgroundColor: present.map(n => colorFor[n]),
+        borderRadius: 6,
+        maxBarThickness: 46,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: c('--text-muted'), font: { size: 10 } } },
+        y: { grid: { color: c('--grid') }, ticks: { color: c('--text-muted'), font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function renderShiftChart() {
   const shiftOrder = ['MADRUGADA', 'MANHA', 'TARDE', 'NOITE'];
   const shiftLabels = ['NIGHT', 'MORNING', 'AFTERNOON', 'EVENING'];
   const shiftColors = [c('--series-1'), c('--series-2'), c('--series-3'), c('--series-4')];
   const shiftByName = Object.fromEntries(data.leituras_por_turno.map(t => [t.turno, t.quantidade]));
-  new Chart(document.getElementById('chartShift'), {
+  if (charts.shift) charts.shift.destroy();
+  charts.shift = new Chart(document.getElementById('chartShift'), {
     type: 'bar',
     data: {
       labels: shiftLabels,
       datasets: [{
         data: shiftOrder.map(t => shiftByName[t] || 0),
         backgroundColor: shiftColors,
-        borderRadius: 4,
+        borderRadius: 6,
         maxBarThickness: 60,
       }]
     },
@@ -329,16 +565,102 @@ async function main() {
       }
     }
   });
+}
 
+let rankingSort = { key: null, dir: 1 };
+function renderRankingTable() {
+  const search = document.getElementById('rankingSearch').value.trim().toLowerCase();
+  let rows = data.ranking_piores_dias.filter(r => !search || r.data_referencia.toLowerCase().includes(search));
+  if (rankingSort.key) {
+    rows = [...rows].sort((a, b) => {
+      const av = a[rankingSort.key], bv = b[rankingSort.key];
+      return av > bv ? rankingSort.dir : av < bv ? -rankingSort.dir : 0;
+    });
+  }
+  const critical = c('--critical'), good = c('--good');
   const tbody = document.querySelector('#rankingTable tbody');
-  tbody.innerHTML = data.ranking_piores_dias.map(r => `
+  tbody.innerHTML = rows.map(r => `
     <tr>
       <td>${new Date(r.data_referencia).toLocaleDateString('en-US')}</td>
       <td>${r.co_medio}</td>
       <td>${r.no2_medio}</td>
       <td>${r.horas_condicao_critica}</td>
-      <td>${r.percentual_horas_criticas}%</td>
-    </tr>`).join('');
+      <td class="severity-cell"><span class="severity-bar" style="background:color-mix(in srgb, ${critical} ${r.percentual_horas_criticas}%, ${good})"></span>${r.percentual_horas_criticas}%</td>
+    </tr>`).join('') || `<tr><td colspan="5" style="color:var(--text-muted)">No matching days.</td></tr>`;
+
+  document.querySelectorAll('#rankingTable th').forEach(th => {
+    th.classList.toggle('sorted', th.dataset.key === rankingSort.key);
+    th.querySelector('.arrow').innerHTML = th.dataset.key === rankingSort.key && rankingSort.dir === -1 ? '&#9652;' : '&#9662;';
+  });
+}
+
+function renderAll() {
+  renderTiles();
+  renderMonthlyCharts(document.getElementById('filterYear').value);
+  renderHeatmap(document.getElementById('filterMetric').value);
+  levelChart('coLevel', 'chartCoLevel', data.distribuicao_co_nivel);
+  levelChart('no2Level', 'chartNo2Level', data.distribuicao_no2_nivel);
+  renderShiftChart();
+  renderRankingTable();
+}
+
+function setupFilters() {
+  const years = [...new Set(data.evolucao_mensal.map(r => String(r.ano)))].sort();
+  const yearSelect = document.getElementById('filterYear');
+  yearSelect.innerHTML = '<option value="all">All years</option>' + years.map(y => `<option value="${y}">${y}</option>`).join('');
+  yearSelect.addEventListener('change', () => {
+    renderMonthlyCharts(yearSelect.value);
+    applyYearFocus(yearSelect.value);
+  });
+
+  document.getElementById('filterMetric').addEventListener('change', (e) => renderHeatmap(e.target.value));
+  document.getElementById('rankingSearch').addEventListener('input', renderRankingTable);
+
+  document.querySelectorAll('#rankingTable th').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      rankingSort.dir = rankingSort.key === key ? -rankingSort.dir : 1;
+      rankingSort.key = key;
+      renderRankingTable();
+    });
+  });
+
+  document.getElementById('togglePreview').addEventListener('click', () => {
+    const box = document.getElementById('reportPreview');
+    const open = box.classList.toggle('open');
+    document.getElementById('togglePreview').textContent = open ? 'Hide preview' : 'Show preview';
+    if (open) {
+      const frame = document.getElementById('reportFrame');
+      if (!frame.src) frame.src = '../docs/evidencias/relatorio-desenvolvimento-aerotrack.pdf';
+    }
+  });
+
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    const root = document.documentElement;
+    const isDark = root.getAttribute('data-theme') === 'dark' ||
+      (!root.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const next = isDark ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('aerotrack-theme', next); } catch (e) {}
+    Chart.defaults.color = c('--text-secondary');
+    Chart.defaults.borderColor = c('--grid');
+    renderAll();
+  });
+}
+
+async function main() {
+  const res = await fetch('data/indicadores.json');
+  data = await res.json();
+
+  Chart.defaults.font.family = "system-ui, -apple-system, 'Segoe UI', sans-serif";
+  Chart.defaults.color = c('--text-secondary');
+  Chart.defaults.borderColor = c('--grid');
+
+  document.getElementById('generatedAt').textContent =
+    'Indicators generated at ' + new Date(data.gerado_em).toLocaleString('en-US');
+
+  setupFilters();
+  renderAll();
 }
 main();
 </script>
