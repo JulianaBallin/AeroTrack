@@ -9,7 +9,7 @@ nome.
 
 | Arquivo | Conteúdo esperado | Situação |
 | --- | --- | --- |
-| `E01-dashboard-overview.png` | Dashboard com os cartões de indicadores e os gráficos de evolução mensal e classificação | Disponível |
+| `E01-dashboard-overview.png` | Dashboard com os cartões de indicadores, o mapa de densidade mensal, os filtros e os gráficos de evolução mensal e classificação | Disponível |
 | `E02-dashboard-ranking.png` | Tabela com o ranking dos 10 piores dias | Disponível |
 | `E03-hop-designer-project.png` | Hop Designer com o projeto `aerotrack` aberto e a árvore de pipelines e workflows visível | Pendente |
 | `E04-pipeline-ingestion-canvas.png` | Canvas de `pl_01_ingestion_treatment` com todas as transformações visíveis | Pendente |

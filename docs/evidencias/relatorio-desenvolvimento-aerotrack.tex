@@ -161,7 +161,14 @@
   \begin{figure}[H]
     \centering
     \IfFileExists{capturas/#1}{
-      \includegraphics[width=0.94\textwidth,height=0.52\textheight,keepaspectratio]{capturas/#1}
+      \tcbox[
+        colframe=AeroWarning,
+        colback=white,
+        boxrule=0.9pt,
+        arc=2mm,
+        boxsep=0mm,
+        left=1mm,right=1mm,top=1mm,bottom=1mm
+      ]{\includegraphics[width=0.9\textwidth,height=0.5\textheight,keepaspectratio]{capturas/#1}}
     }{
       \fcolorbox{AeroLine}{AeroLight}{
         \parbox[c][5.4cm][c]{0.88\textwidth}{
