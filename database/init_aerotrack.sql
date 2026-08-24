@@ -1,9 +1,13 @@
--- Estrutura do banco de dados do projeto AeroTrack
--- Trabalho final do Modulo 6 (Apache Hop), Projeto 4: Monitoramento de Qualidade do Ar
+-- Database schema for the AeroTrack project
+-- Module 6 final assignment (Apache Hop), Project 4: Air Quality Monitoring
+--
+-- Table and column names stay in Portuguese to match the pipelines, the
+-- SQL views and the report/presentation in docs/, which document this
+-- project in Portuguese as required by the course.
 
--- Tabela de dados tratados e detalhados (uma linha por leitura horaria da estacao).
--- A restricao UNIQUE em data_hora permite que o processo seja reexecutado sem duplicar
--- registros: a pipeline de carga usa Insert/Update por data_hora.
+-- Detailed, treated readings (one row per hourly station reading).
+-- The UNIQUE constraint on data_hora lets the process be rerun without
+-- duplicating records: the load pipeline uses Insert/Update keyed on data_hora.
 CREATE TABLE IF NOT EXISTS leituras_qualidade_ar (
     id BIGSERIAL PRIMARY KEY,
     data_hora TIMESTAMP NOT NULL,
@@ -38,9 +42,9 @@ CREATE TABLE IF NOT EXISTS leituras_qualidade_ar (
 CREATE INDEX IF NOT EXISTS idx_leituras_data_referencia ON leituras_qualidade_ar (data_referencia);
 CREATE INDEX IF NOT EXISTS idx_leituras_ano_mes ON leituras_qualidade_ar (ano, mes);
 
--- Tabela de registros descartados pela pipeline de tratamento (leituras em que
--- todos os poluentes de referencia estavam ausentes na fonte). Mantida para
--- comprovar a etapa obrigatoria de separacao de registros invalidos.
+-- Records discarded by the treatment pipeline (readings where every
+-- reference pollutant was missing from the source). Kept as proof of the
+-- required invalid-record separation step.
 CREATE TABLE IF NOT EXISTS leituras_rejeitadas (
     id BIGSERIAL PRIMARY KEY,
     data_hora_texto VARCHAR(30),
@@ -51,9 +55,9 @@ CREATE TABLE IF NOT EXISTS leituras_rejeitadas (
     processado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de resumo diario. Alimentada pela pipeline de consolidacao a partir de
--- leituras_qualidade_ar. A chave primaria em data_referencia garante que uma nova
--- execucao apenas atualiza o dia, sem duplicar linhas.
+-- Daily summary table. Fed by the consolidation pipeline from
+-- leituras_qualidade_ar. The primary key on data_referencia guarantees that a
+-- new run only updates the day, without duplicating rows.
 CREATE TABLE IF NOT EXISTS resumo_diario_qualidade_ar (
     data_referencia DATE PRIMARY KEY,
     total_leituras INTEGER NOT NULL,
@@ -71,7 +75,7 @@ CREATE TABLE IF NOT EXISTS resumo_diario_qualidade_ar (
     atualizado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabela de resumo mensal, usada para a evolucao temporal exibida no dashboard.
+-- Monthly summary table, used for the time trend shown on the dashboard.
 CREATE TABLE IF NOT EXISTS resumo_mensal_qualidade_ar (
     ano INTEGER NOT NULL,
     mes INTEGER NOT NULL,
@@ -87,7 +91,7 @@ CREATE TABLE IF NOT EXISTS resumo_mensal_qualidade_ar (
     PRIMARY KEY (ano, mes)
 );
 
--- Visao com os indicadores gerais do periodo inteiro, usada pelos cartoes do dashboard.
+-- View with the overall indicators for the whole period, used by the dashboard cards.
 CREATE OR REPLACE VIEW vw_indicadores_gerais AS
 SELECT
     COUNT(*) AS total_leituras,
@@ -102,7 +106,7 @@ SELECT
     ROUND(AVG(umidade_relativa)::numeric, 2) AS umidade_media_geral
 FROM leituras_qualidade_ar;
 
--- Ranking dos 10 dias com piores condicoes registradas (maior media de CO).
+-- Ranking of the 10 days with the worst recorded conditions (highest average CO).
 CREATE OR REPLACE VIEW vw_ranking_piores_dias AS
 SELECT
     data_referencia,

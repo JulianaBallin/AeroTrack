@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <workflow>
-  <name>wf_orquestracao_qualidade_ar</name>
+  <name>wf_air_quality_orchestration</name>
   <name_sync_with_filename>N</name_sync_with_filename>
-  <description>Orquestra a execucao completa do processo de qualidade do ar: ingestao e tratamento, seguido da consolidacao dos indicadores.</description>
+  <description>Orchestrates the full air quality process: ingestion and treatment, followed by indicator consolidation.</description>
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
@@ -35,11 +35,11 @@
       <attributes_hac/>
     </action>
     <action>
-      <name>Ingestao e tratamento</name>
-      <description>Executa pl_01_ingestao_tratamento: leitura do CSV, tratamento, classificacao e carga no banco.</description>
+      <name>Ingestion and treatment</name>
+      <description>Runs pl_01_ingestion_treatment: CSV reading, treatment, classification and database load.</description>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/pipelines/pl_01_ingestao_tratamento.hpl</filename>
+      <filename>${PROJECT_HOME}/pipelines/pl_01_ingestion_treatment.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -65,11 +65,11 @@
       <attributes_hac/>
     </action>
     <action>
-      <name>Consolidacao de indicadores</name>
-      <description>Executa pl_02_consolidacao_indicadores: calcula os resumos diario e mensal a partir das leituras tratadas.</description>
+      <name>Indicator consolidation</name>
+      <description>Runs pl_02_indicator_consolidation: calculates the daily and monthly summaries from the treated readings.</description>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/pipelines/pl_02_consolidacao_indicadores.hpl</filename>
+      <filename>${PROJECT_HOME}/pipelines/pl_02_indicator_consolidation.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -95,7 +95,7 @@
       <attributes_hac/>
     </action>
     <action>
-      <name>Processo concluido</name>
+      <name>Process completed</name>
       <description/>
       <type>SUCCESS</type>
       <attributes/>
@@ -109,7 +109,7 @@
   <hops>
     <hop>
       <from>START</from>
-      <to>Ingestao e tratamento</to>
+      <to>Ingestion and treatment</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -117,8 +117,8 @@
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Ingestao e tratamento</from>
-      <to>Consolidacao de indicadores</to>
+      <from>Ingestion and treatment</from>
+      <to>Indicator consolidation</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -126,8 +126,8 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Consolidacao de indicadores</from>
-      <to>Processo concluido</to>
+      <from>Indicator consolidation</from>
+      <to>Process completed</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
