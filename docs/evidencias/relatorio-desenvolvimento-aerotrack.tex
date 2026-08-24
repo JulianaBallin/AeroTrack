@@ -348,6 +348,11 @@ após o sucesso da ingestão.
 
 \chapter{Pipelines Apache Hop}
 
+O projeto \texttt{aerotrack} é aberto no Apache Hop Designer com dois
+pipelines e um workflow de orquestração, listados na árvore do projeto.
+
+\evidencia{E03-hop-designer-project.png}{Hop Designer com o projeto aerotrack aberto e a árvore de pipelines e workflows visível}{disponível}
+
 \section{pl\_01\_ingestion\_treatment}
 
 \small
@@ -375,7 +380,7 @@ Banco de dados & Table Output & Grava as leituras rejeitadas em \texttt{leituras
 \end{longtable}
 \normalsize
 
-\evidencia{E04-pipeline-ingestion-canvas.png}{Canvas de pl\_01\_ingestion\_treatment no Hop Designer}{pendente de captura pela equipe}
+\evidencia{E04-pipeline-ingestion-canvas.png}{Canvas de pl\_01\_ingestion\_treatment no Hop Designer}{disponível}
 
 \section{pl\_02\_indicator\_consolidation}
 
@@ -393,7 +398,7 @@ Banco de dados & Insert/Update & Grava o resumo em \texttt{resumo\_mensal\_quali
 \end{longtable}
 \normalsize
 
-\evidencia{E05-pipeline-consolidation-canvas.png}{Canvas de pl\_02\_indicator\_consolidation no Hop Designer}{pendente de captura pela equipe}
+\evidencia{E05-pipeline-consolidation-canvas.png}{Canvas de pl\_02\_indicator\_consolidation no Hop Designer}{disponível}
 
 \section{Workflow de orquestração}
 
@@ -403,7 +408,9 @@ START -> Ingestion and treatment -> Indicator consolidation -> Process completed
 
 O segundo hop só é seguido se a pipeline de ingestão terminar com sucesso.
 
-\evidencia{E06-workflow-canvas.png}{Canvas de wf\_air\_quality\_orchestration no Hop Designer}{pendente de captura pela equipe}
+\evidencia{E06-workflow-canvas.png}{Canvas de wf\_air\_quality\_orchestration no Hop Designer}{disponível}
+
+\evidencia{E07-workflow-execution-hop.png}{Execução do workflow pela interface gráfica, com o resultado de sucesso em cada ação e o log completo no painel de logging}{disponível}
 
 \chapter{Tratamento de dados}
 
@@ -475,6 +482,8 @@ completo a cada execução, pois funciona como um log da última carga.
 Esse comportamento foi validado executando o workflow duas vezes seguidas
 sobre o mesmo arquivo fonte: a contagem de linhas em
 \texttt{leituras\_qualidade\_ar} permaneceu em 8131 nas duas execuções.
+
+\evidencia{E10-database-rerun.png}{Contagem de linhas antes e depois da reexecução do workflow, comprovando a ausência de duplicidade}{disponível}
 
 \chapter{Indicadores e dashboard}
 
